@@ -18,77 +18,72 @@ const candidates =
     }
 ]
 
+var correctCounter = 0
+var errorCounter = 0
+var randNumb = []
+var randCounter
 var ballotCand = []
 var ballotParty = []
-var ballotStack = {}
+var ballotStack = []
+var scoreSheet = []
 var noBallots = 25
 var ballotCounter = 0
+var ballot = []
 
-function createBallot(candidates)
+function genRandNumb(noBallots) {
+    for (i=0; i < (noBallots); i++)
+    {
+        randVotes = []
+        for (j=0; j < (5); j++) {
+            randVotes[j] = Math.random()
+        }
+        randNumb[i] = randVotes
+    }
+    return randNumb
+}
+
+function createBallots(candidates)
 {
     let avail_candidates = candidates
-    //console.log(avail_candidates)
-    ballot = []
-    for (i = 0; i < 5; i++)
-    {
+    ballot_candidates = []
+    for (i = 0; i < 5; i++) {
         party = Object.keys(avail_candidates[i])[0];
 
         candidate = (Object.values(avail_candidates[i])[0][(Math.floor(Math.random() * (avail_candidates[i][party].length)))]);
 
-        
-        //delete chosen candidate from avail_candidates once we have multiple candidates same party
-
-        //console.log(candidate + " - " + party);
-
-        ballot.push({candidate : candidate, party : party, first: 0, second: 0, third: 0, fourth: 0, fifth: 0})
+        ballot_candidates.push({candidate : candidate, party : party})
     }
+    //console.log(avail_candidates)
+    for (iterator = 0; iterator<noBallots; iterator++) {
+        possibilities = 
+        [
+            ["x",0,0,0,0],
+            [0,"x",0,0,0],
+            [0,0,"x",0,0],
+            [0,0,0,"x",0],
+            [0,0,0,0,"x"]
+        ];
+
+        ballotVotes = possibilities.sort(() => Math.random() - 0.5)
+
+        for (i = 0; i < 5; i++)
+        {
+            // party = Object.keys(avail_candidates[i])[0];
+
+            // candidate = (Object.values(avail_candidates[i])[0][(Math.floor(Math.random() * (avail_candidates[i][party].length)))]);
+        
+            //delete chosen candidate from avail_candidates once we have multiple candidates same party
+
+            ballot.push({candidate : ballot_candidates[i]['candidate'], party : ballot_candidates[i]['party'], first: ballotVotes[i][0], second: ballotVotes[i][1], third: ballotVotes[i][2], fourth: ballotVotes[i][3], fifth: ballotVotes[i][4]})
+        }
+        ballotStack.push(ballot)
+        ballot = []
+    }
+    
     //console.log(ballot)
-    return ballot
+    return ballotStack
 }
 
-function createBallotVotes(ballot) {
-
-    possibilities = 
-    [
-        ["x",0,0,0,0],
-        [0,"x",0,0,0],
-        [0,0,"x",0,0],
-        [0,0,0,"x",0],
-        [0,0,0,0,"x"]
-    ];
-   
-    ballotVotes = possibilities.sort(() => Math.random() - 0.5)
-        //console.log(ballotVotes)
-        //console.log(ballot)
-    for (j = 0; j < 5; j++) {
-        ballot[j].first = ballotVotes[j][0];
-        ballot[j].second = ballotVotes[j][1];
-        ballot[j].third = ballotVotes[j][2];
-        ballot[j].fourth = ballotVotes[j][3];
-        ballot[j].fifth = ballotVotes[j][4];
-        }
-    
-    //console.log(ballotStack)
-    return ballot
-};
-
-function shuffle(array) {
-    let currentIndex = array.length,  randomIndex;
-  
-    // While there remain elements to shuffle.
-    while (currentIndex != 0) {
-  
-      // Pick a remaining element.
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-  
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
-    }
-  
-    return array;
-  }
 
 function createTable(ballot) {
     var tbody = d3.select("#ballot");
@@ -148,29 +143,69 @@ function createScorecard(ballot)
     
 };
 
+
+
 function scoreBallot() {
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
-    console.log(ballot[elementValue]['candidate']);
+    // console.log(ballot[elementValue]['candidate']);
+    // console.log(ballot[elementValue]['first'])
+    if (ballotStack[ballotCounter][elementValue]['first']==='x') {
+        console.log("You chose wisely.")
+        
+    }
+    else {
+        console.log("You chose poorly.")
+    }
 
     ballotCounter++
-    createBallotVotes(ballot)
-    createTable(ballot)
-    createScorecard(ballot)
+    //createBallotVotes(ballot)
+    createTable(ballotStack[ballotCounter])
+    createScorecard(ballotStack[ballotCounter])
     d3.selectAll("input").on("click", scoreBallot);
 }
 
-createBallot(candidates)
-createBallotVotes(ballot)
-createTable(ballot)
-createScorecard(ballot)
+createBallots(candidates)
+createBallotScoreSheet(ballotStack[ballotCounter])
+createTable(ballotStack[ballotCounter])
+createScorecard(ballotStack[ballotCounter])
+
 
 d3.selectAll("input").on("click", scoreBallot);
 
 
-// function createBallotStack(ballot) {
-    
-//     ballotStack = []
+function createBallotScoreSheet(ballot) 
+{
+    for (i = 0; i < 5; i++)
+    {
+        candidate = (ballot[i]['candidate']);
+        scoreSheet.push({candidate : candidate, first: 0, second: 0, third: 0, fourth: 0, fifth: 0, total:0})
+    }
+    return scoreSheet
+}
+
+
+
+// function shuffle(array) {
+//     let currentIndex = array.length,  randomIndex;
+  
+//     // While there remain elements to shuffle.
+//     while (currentIndex != 0) {
+  
+//       // Pick a remaining element.
+//       randomIndex = Math.floor(Math.random() * currentIndex);
+//       currentIndex--;
+  
+//       // And swap it with the current element.
+//       [array[currentIndex], array[randomIndex]] = [
+//         array[randomIndex], array[currentIndex]];
+//     }
+  
+//     return array;
+//   }
+
+// function createPossibilities()
+// {
 //     possibilities = 
 //     [
 //         ["x",0,0,0,0],
@@ -179,23 +214,15 @@ d3.selectAll("input").on("click", scoreBallot);
 //         [0,0,0,"x",0],
 //         [0,0,0,0,"x"]
 //     ];
-//     for (i = 0; i < noBallots; i++) 
-//     {
-//         ballotVotes = possibilities.sort(() => Math.random() - 0.5)
-//         //console.log(ballotVotes)
-//         //console.log(ballot)
-//         for (j = 0; j < 5; j++) {
-//             ballot[j].first = ballotVotes[j][0];
-//             ballot[j].second = ballotVotes[j][1];
-//             ballot[j].third = ballotVotes[j][2];
-//             ballot[j].fourth = ballotVotes[j][3];
-//             ballot[j].fifth = ballotVotes[j][4];
-//         }
-//         ballotStack.push(ballot)
-//     }
-//     //console.log(ballotStack)
-//     return ballotStack
+
+//     return possibilities
 // };
+
+// function shufflePossibilities(possibilities) {
+//     ballotVotes = possibilities.sort(() => Math.random() - 0.5)
+//     return ballotVotes
+// }
+
 
 // function runElection(ballotStack)
 // {
@@ -205,3 +232,89 @@ d3.selectAll("input").on("click", scoreBallot);
 //         createScorecard(ballotStack[i])
 //     }
 // }
+
+
+//console.log(ballotVotes)
+        //console.log(ballot)
+        // for (j = 0; j < 5; j++) {
+        //     ballot[j].first = ballotVotes[j][0];
+        //     ballot[j].second = ballotVotes[j][1];
+        //     ballot[j].third = ballotVotes[j][2];
+        //     ballot[j].fourth = ballotVotes[j][3];
+        //     ballot[j].fifth = ballotVotes[j][4];
+        // }
+
+
+        // function createBallotStack(ballot) {
+
+//     for (i = 0; i < noBallots; i++) 
+//     {
+//         let possibilities = 
+//     [
+//         ["x",0,0,0,0],
+//         [0,"x",0,0,0],
+//         [0,0,"x",0,0],
+//         [0,0,0,"x",0],
+//         [0,0,0,0,"x"]
+//     ];
+
+//         ballotVotes = []
+
+//         for (k = 0; k < possibilities.length; k++) {
+//             //maxRand = Math.max(reduce(randNumb[i]))
+//             anIndex = randNumb[i].indexOf(Math.max(randNumb[i][0],randNumb[i][1],randNumb[i][2],randNumb[i][3],randNumb[i][4]));
+//             ballotVotes.push(possibilities[anIndex])
+//             randNumb[i][anIndex]=0;
+//         }
+
+//         //console.log(ballotVotes)
+
+//         for (j = 0; j < 5; j++) {
+//             ballot[j].first = ballotVotes[j][0];
+//             ballot[j].second = ballotVotes[j][1];
+//             ballot[j].third = ballotVotes[j][2];;
+//             ballot[j].fourth = ballotVotes[j][3];;
+//             ballot[j].fifth = ballotVotes[j][4];;
+//             }
+
+//         console.log(i)
+//         console.log(ballotVotes)
+//         console.log(ballot)
+
+//         //maybe make a completely new object here and push that to the ballot stack
+
+//         ballotStack[i] = ballot;
+//     }
+//     //console.log(ballotStack)
+//     //return ballotStack
+// };
+
+
+// function createBallotVotes(ballot) {
+
+//     for (i=0; i<noBallots; i++) {
+//         possibilities = 
+//         [
+//             ["x",0,0,0,0],
+//             [0,"x",0,0,0],
+//             [0,0,"x",0,0],
+//             [0,0,0,"x",0],
+//             [0,0,0,0,"x"]
+//         ];
+       
+//         ballotVotes = possibilities.sort(() => Math.random() - 0.5)
+
+
+//         for (j = 0; j < 5; j++) {
+//             ballot[j].first = ballotVotes[j][0];
+//             ballot[j].second = ballotVotes[j][1];
+//             ballot[j].third = ballotVotes[j][2];
+//             ballot[j].fourth = ballotVotes[j][3];
+//             ballot[j].fifth = ballotVotes[j][4];
+//             }
+        
+//         // do this like you did the candidates -- from available possibilities
+
+//         ballotStack[i]={}
+//     }
+// };
