@@ -30,18 +30,6 @@ var noBallots = 25
 var ballotCounter = 0
 var ballot = []
 
-function genRandNumb(noBallots) {
-    for (i=0; i < (noBallots); i++)
-    {
-        randVotes = []
-        for (j=0; j < (5); j++) {
-            randVotes[j] = Math.random()
-        }
-        randNumb[i] = randVotes
-    }
-    return randNumb
-}
-
 function createBallots(candidates)
 {
     let avail_candidates = candidates
@@ -131,19 +119,17 @@ function createScorecard(ballot)
     //create candidate votes
     for (i = 0; i < remain_cand; i++) {
         let cell = row3.append("td")
-        cell.text("Votes:")
+        cell.text("Votes: " + scoreSheet[i]['total'])
     }
     
     let row4 = scoreBody.append("tr");
     //create votes needed to win
     for (i = 0; i < remain_cand; i++) {
         let cell = row4.append("td")
-        cell.text("Needed to win")
+        cell.text("Needed to win: " + scoreSheet[i]['neededToWin'])
     }
     
 };
-
-
 
 function scoreBallot() {
     let changedElement = d3.select(this);
@@ -152,13 +138,24 @@ function scoreBallot() {
     // console.log(ballot[elementValue]['first'])
     if (ballotStack[ballotCounter][elementValue]['first']==='x') {
         console.log("You chose wisely.")
-        
+        correctCounter++
     }
     else {
         console.log("You chose poorly.")
+        errorCounter++
     }
+    //console.log(ballotStack[ballotCounter])
 
+    for (i=0; i<ballotStack[ballotCounter].length; i++) {
+        if (ballotStack[ballotCounter][i]['first'] === 'x') {
+            scoreSheet[i]['first'] = scoreSheet[i]['first'] + 1
+        }
+        scoreSheet[i]['total'] = scoreSheet[i]['first'] + scoreSheet[i]['second'] + scoreSheet[i]['third'] + scoreSheet[i]['fourth']
+        scoreSheet[i]['neededToWin'] = Math.ceil(noBallots/2) - scoreSheet[i]['total']
+    }
+    console.log(scoreSheet)
     ballotCounter++
+
     //createBallotVotes(ballot)
     createTable(ballotStack[ballotCounter])
     createScorecard(ballotStack[ballotCounter])
@@ -179,10 +176,16 @@ function createBallotScoreSheet(ballot)
     for (i = 0; i < 5; i++)
     {
         candidate = (ballot[i]['candidate']);
-        scoreSheet.push({candidate : candidate, first: 0, second: 0, third: 0, fourth: 0, fifth: 0, total:0})
+        scoreSheet.push({candidate : candidate, first: 0, second: 0, third: 0, fourth: 0, fifth: 0, total: 0, neededToWin : Math.ceil(noBallots/2)})
     }
     return scoreSheet
 }
+
+
+
+
+
+
 
 
 
@@ -318,3 +321,15 @@ function createBallotScoreSheet(ballot)
 //         ballotStack[i]={}
 //     }
 // };
+
+// function genRandNumb(noBallots) {
+//     for (i=0; i < (noBallots); i++)
+//     {
+//         randVotes = []
+//         for (j=0; j < (5); j++) {
+//             randVotes[j] = Math.random()
+//         }
+//         randNumb[i] = randVotes
+//     }
+//     return randNumb
+// }
