@@ -20,6 +20,7 @@ const candidates =
 
 var correctCounter = 0
 var errorCounter = 0
+var roundCounter = 1
 var randNumb = []
 var randCounter
 var ballotCand = []
@@ -72,7 +73,6 @@ function createBallots(candidates)
     return ballotStack
 }
 
-
 function createTable(ballot) {
     var tbody = d3.select("#ballot");
     tbody.html("");
@@ -87,12 +87,25 @@ function createTable(ballot) {
     });
 }
 
+function createPlayerScore() {
+    var playerScore = d3.select("#playerScore");
+    playerScore.html("");
+
+    let row = playerScore.append("tr");
+    cell = row.append("td")
+    cell.html("Score this Ballot!")
+    cell = row.append("td")
+    cell.html("Ballots Scored Correctly: " + correctCounter)
+    cell = row.append("td")
+    cell.html("Errors: " + errorCounter)
+}
 
 function createScorecard(ballot)
 {
     var scoreBody = d3.select("#scorecard");
     scoreBody.html("");
     remain_cand = 5
+
     let row = scoreBody.append("tr");
 
     //create radio buttons
@@ -102,7 +115,7 @@ function createScorecard(ballot)
         cell.html("<input type="+"radio"+" name="+"vote-getter"+" value="+i+">")
         //console.log(candidate_data['candidate'])
     }
-
+    
     let row2 = scoreBody.append("tr");
 
     //create choice labels
@@ -128,23 +141,44 @@ function createScorecard(ballot)
         let cell = row4.append("td")
         cell.text("Needed to win: " + scoreSheet[i]['neededToWin'])
     }
-    
+
+    let row5 = scoreBody.append("tr");
+    //create additional action buttons
+    cell = row5.append("td")
+    cell.html("<input type="+"button"+" name="+"eliminate_button"+" value="+"Eliminate Candidate"+">")
+    cell = row5.append("td")
+    cell.html("<input type="+"button"+" name="+"eliminate_button"+" value="+"Declare Winner"+">")
+    cell = row5.append("td")
+    cell.html("<input type="+"button"+" name="+"eliminate_button"+" value="+"Overvote"+">")
+    cell = row5.append("td")
+    cell.html("<input type="+"button"+" name="+"eliminate_button"+" value="+"Ballot Exhuasted"+">")
 };
 
+function errorProcedure() {
+    var errorMessage = d3.select("#errorMessage");
+    errorMessage.html("Error! Rescore Ballot!")
+    d3.selectAll("input").on("click", scoreBallot)
+}
+
 function scoreBallot() {
+    var errorMessage = d3.select("#errorMessage");
+    errorMessage.html("")
+    var error = 0
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
     // console.log(ballot[elementValue]['candidate']);
     // console.log(ballot[elementValue]['first'])
     if (ballotStack[ballotCounter][elementValue]['first']==='x') {
         console.log("You chose wisely.")
+        error = 0
         correctCounter++
     }
     else {
         console.log("You chose poorly.")
         errorCounter++
+        error = 1
+        errorProcedure()
     }
-    //console.log(ballotStack[ballotCounter])
 
     for (i=0; i<ballotStack[ballotCounter].length; i++) {
         if (ballotStack[ballotCounter][i]['first'] === 'x') {
@@ -153,23 +187,32 @@ function scoreBallot() {
         scoreSheet[i]['total'] = scoreSheet[i]['first'] + scoreSheet[i]['second'] + scoreSheet[i]['third'] + scoreSheet[i]['fourth']
         scoreSheet[i]['neededToWin'] = Math.ceil(noBallots/2) - scoreSheet[i]['total']
     }
-    console.log(scoreSheet)
+
+    console.log(ballotCounter)
+
     ballotCounter++
 
+    console.log(ballotCounter)
+    console.log("error= " + error)
+    if (error == 1) {
+        ballotCounter--
+    };
+    console.log(ballotCounter)
+    
     //createBallotVotes(ballot)
     createTable(ballotStack[ballotCounter])
     createScorecard(ballotStack[ballotCounter])
+    createPlayerScore()
     d3.selectAll("input").on("click", scoreBallot);
 }
 
 createBallots(candidates)
 createBallotScoreSheet(ballotStack[ballotCounter])
+createPlayerScore()
 createTable(ballotStack[ballotCounter])
 createScorecard(ballotStack[ballotCounter])
 
-
 d3.selectAll("input").on("click", scoreBallot);
-
 
 function createBallotScoreSheet(ballot) 
 {
