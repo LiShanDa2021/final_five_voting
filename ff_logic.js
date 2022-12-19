@@ -20,7 +20,8 @@ const candidates =
 
 var correctCounter = 0
 var errorCounter = 0
-var roundCounter = 1
+var rounds = ['first', 'second', 'third', 'fourth']
+var roundCounter = 0
 var randNumb = []
 var randCounter
 var ballotCand = []
@@ -30,6 +31,7 @@ var scoreSheet = []
 var noBallots = 25
 var ballotCounter = 0
 var ballot = []
+var remain_cand = 5
 
 function createBallots(candidates)
 {
@@ -57,10 +59,7 @@ function createBallots(candidates)
 
         for (i = 0; i < 5; i++)
         {
-            // party = Object.keys(avail_candidates[i])[0];
-
-            // candidate = (Object.values(avail_candidates[i])[0][(Math.floor(Math.random() * (avail_candidates[i][party].length)))]);
-        
+            
             //delete chosen candidate from avail_candidates once we have multiple candidates same party
 
             ballot.push({candidate : ballot_candidates[i]['candidate'], party : ballot_candidates[i]['party'], first: ballotVotes[i][0], second: ballotVotes[i][1], third: ballotVotes[i][2], fourth: ballotVotes[i][3], fifth: ballotVotes[i][4]})
@@ -69,21 +68,30 @@ function createBallots(candidates)
         ballot = []
     }
     
-    //console.log(ballot)
     return ballotStack
 }
+
 
 function createTable(ballot) {
     var tbody = d3.select("#ballot");
     tbody.html("");
+    i = 0
     ballot.forEach((cand) => 
     {
         let row = tbody.append("tr")
+        j = 0
         Object.values(cand).forEach((val) => 
         {
             let cell = row.append("td");
-            cell.text(val);
+            if ((scoreSheet[i]['eliminated'] == true) && (j < 2)) {
+                cell.text('Eliminated');
+                j++
+            }
+            else {
+                cell.text(val);
+            }
         });
+        i++
     });
 }
 
@@ -98,13 +106,16 @@ function createPlayerScore() {
     cell.html("Ballots Scored Correctly: " + correctCounter)
     cell = row.append("td")
     cell.html("Errors: " + errorCounter)
+    cell = row.append("td")
+    cell.html("Round: " + (roundCounter + 1))
+    cell = row.append("td")
+    cell.html("Ballots Remaining in Round: " + ((ballotStack.length)-ballotCounter))
 }
 
 function createScorecard(ballot)
 {
     var scoreBody = d3.select("#scorecard");
     scoreBody.html("");
-    remain_cand = 5
 
     let row = scoreBody.append("tr");
 
@@ -145,13 +156,19 @@ function createScorecard(ballot)
     let row5 = scoreBody.append("tr");
     //create additional action buttons
     cell = row5.append("td")
-    cell.html("<input type="+"button"+" name="+"eliminate_button"+" value="+"Eliminate Candidate"+">")
+    cell.html("<input type="+"button"+" id="+"eliminate_button"+" value="+"Eliminate Candidate"+">")
+    eliminateButton = document.getElementById("eliminate_button")
+    //console.log(eliminateButton)
     cell = row5.append("td")
-    cell.html("<input type="+"button"+" name="+"eliminate_button"+" value="+"Declare Winner"+">")
+    cell.html("<input type="+"button"+" id="+"winner_button"+" value="+"Declare Winner"+">")
+    winnerButton = document.querySelector(".winner_button")
     cell = row5.append("td")
-    cell.html("<input type="+"button"+" name="+"eliminate_button"+" value="+"Overvote"+">")
+    cell.html("<input type="+"button"+" id="+"overvote_button"+" value="+"Overvote"+">")
+    overVoteButton = document.querySelector(".overvote_button")
     cell = row5.append("td")
-    cell.html("<input type="+"button"+" name="+"eliminate_button"+" value="+"Ballot Exhuasted"+">")
+    cell.html("<input type="+"button"+" id="+"exhausted_button"+" value="+"Exhuasted Ballot"+">")
+    exhuastedButton = document.querySelector(".exhuasted_button")
+    return eliminateButton, winnerButton, overVoteButton, exhuastedButton
 };
 
 function errorProcedure() {
@@ -160,15 +177,42 @@ function errorProcedure() {
     d3.selectAll("input").on("click", scoreBallot)
 }
 
-function scoreBallot() {
-    var errorMessage = d3.select("#errorMessage");
-    errorMessage.html("")
-    var error = 0
+function createBallotScoreSheet(ballot)
+{
+    for (i = 0; i < 5; i++)
+    {
+        candidate = (ballot[i]['candidate']);
+        scoreSheet.push({candidate : candidate, first: 0, second: 0, third: 0, fourth: 0, fifth: 0, total: 0, neededToWin : Math.ceil(noBallots/2), eliminated: false})
+    }
+    return scoreSheet
+}
+
+
+function eliminateProcedure() {
+    console.log("eliminate someone")
+    console.log("who do we eliminate?")
+    d3.selectAll("input").on("click", eliminateWhom);
+}
+
+function eliminateWhom() {
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
-    // console.log(ballot[elementValue]['candidate']);
-    // console.log(ballot[elementValue]['first'])
-    if (ballotStack[ballotCounter][elementValue]['first']==='x') {
+    console.log(elementValue)
+    console.log((ballotStack[ballotCounter][elementValue]['candidate']) + " has been eliminated.")
+    scoreSheet[elementValue]['eliminated'] = true
+    scoreSheet[elementValue]
+    
+    createTable(ballotStack[ballotCounter])
+    createScorecard(ballotStack[ballotCounter])
+    createPlayerScore()
+    d3.selectAll("input").on("click", doSomething);
+}
+
+
+function scoreBallot(elementValue) {
+    
+    if (ballotStack[ballotCounter][elementValue][rounds[roundCounter]]==='x') {
+        //console.log(ballotStack[ballotCounter][elementValue][rounds[roundCounter]])
         console.log("You chose wisely.")
         error = 0
         correctCounter++
@@ -180,30 +224,57 @@ function scoreBallot() {
         errorProcedure()
     }
 
+    console.log(ballotCounter)
+
+    
     for (i=0; i<ballotStack[ballotCounter].length; i++) {
-        if (ballotStack[ballotCounter][i]['first'] === 'x') {
-            scoreSheet[i]['first'] = scoreSheet[i]['first'] + 1
+        if (ballotStack[ballotCounter][i][rounds[roundCounter]] === 'x') {
+            scoreSheet[i][rounds[roundCounter]] = scoreSheet[i][rounds[roundCounter]] + 1
         }
         scoreSheet[i]['total'] = scoreSheet[i]['first'] + scoreSheet[i]['second'] + scoreSheet[i]['third'] + scoreSheet[i]['fourth']
-        scoreSheet[i]['neededToWin'] = Math.ceil(noBallots/2) - scoreSheet[i]['total']
+        scoreSheet[i]['neededToWin'] = Math.ceil((noBallots*(roundCounter+1))/2) - scoreSheet[i]['total']
     }
-
-    console.log(ballotCounter)
-
+    
     ballotCounter++
-
-    console.log(ballotCounter)
-    console.log("error= " + error)
+    
     if (error == 1) {
         ballotCounter--
     };
-    console.log(ballotCounter)
+
+    if (ballotCounter == ballotStack.length) {
+        var errorMessage = d3.select("#errorMessage");
+        errorMessage.html("")
+        errorMessage.html("End of Round! Take appropriate action.")
+        roundCounter++
+        ballotCounter = 0
+        endofRound = true
+    }
     
-    //createBallotVotes(ballot)
     createTable(ballotStack[ballotCounter])
     createScorecard(ballotStack[ballotCounter])
     createPlayerScore()
-    d3.selectAll("input").on("click", scoreBallot);
+  
+    d3.selectAll("input").on("click", doSomething);
+}
+
+function doSomething() {
+    console.log("Doin Somethin")
+    var errorMessage = d3.select("#errorMessage");
+    errorMessage.html("")
+    var error = 0
+
+    let changedElement = d3.select(this);
+    let elementValue = changedElement.property("value");
+    // console.log("here comes the changed element")
+    // console.log(elementValue)
+
+    if (elementValue === "Eliminate") {
+        eliminateProcedure()
+    }
+
+    else {
+        scoreBallot(elementValue)
+    }
 }
 
 createBallots(candidates)
@@ -212,17 +283,22 @@ createPlayerScore()
 createTable(ballotStack[ballotCounter])
 createScorecard(ballotStack[ballotCounter])
 
-d3.selectAll("input").on("click", scoreBallot);
+d3.selectAll("input").on("click", doSomething);
 
-function createBallotScoreSheet(ballot) 
-{
-    for (i = 0; i < 5; i++)
-    {
-        candidate = (ballot[i]['candidate']);
-        scoreSheet.push({candidate : candidate, first: 0, second: 0, third: 0, fourth: 0, fifth: 0, total: 0, neededToWin : Math.ceil(noBallots/2)})
-    }
-    return scoreSheet
-}
+
+
+// make sure eliminated candidate has least votes
+// display vote for eliminated candidate
+// ballot exhausted function
+
+
+
+
+
+
+
+
+
 
 
 
@@ -375,4 +451,46 @@ function createBallotScoreSheet(ballot)
 //         randNumb[i] = randVotes
 //     }
 //     return randNumb
+// }
+
+    // let changedElement = d3.select(this);
+    // let elementValue = changedElement.property("value");
+    // console.log(elementValue)
+    // if (elementValue != "Eliminate Candidate") {
+    //     var errorMessage = d3.select("#errorMessage");
+    //     errorMessage.html("")
+    //     errorCounter++
+    //     console.log("wrong action")
+    //     errorMessage.html("Wrong action! Choose again.")
+    //     endofRoundProcedure
+    // }
+
+
+        // originally at the top of scoreBallot
+    // var errorMessage = d3.select("#errorMessage");
+    // errorMessage.html("")
+    // var error = 0
+
+    // let changedElement = d3.select(this);
+    // console.log(changedElement)
+    // let elementValue = changedElement.property("value");
+    // console.log(elementValue)
+
+    // function endofRoundProcedure() {
+//     let changedElement = d3.select(this);
+//     let elementValue = changedElement.property("value");
+//     var errorMessage = d3.select("#errorMessage");
+
+//     errorMessage.html("")
+//     error = 0
+
+//     roundCounter++
+//     ballotCounter = 0
+
+//     errorMessage.html("End of Round! Take appropriate action.")
+//     console.log("end of round")
+
+
+
+//     //d3.selectAll("input").on("click", eliminateProcedure)
 // }
