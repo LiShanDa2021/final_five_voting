@@ -28,7 +28,7 @@ var ballotCand = []
 var ballotParty = []
 var ballotStack = []
 var scoreSheet = []
-var noBallots = 25
+var noBallots = 5
 var ballotCounter = 0
 var ballot = []
 var remain_cand = 5
@@ -171,10 +171,22 @@ function createScorecard(ballot)
     return eliminateButton, winnerButton, overVoteButton, exhuastedButton
 };
 
-function errorProcedure() {
+function errorProcedure(errorCode) {
     var errorMessage = d3.select("#errorMessage");
-    errorMessage.html("Error! Rescore Ballot!")
-    d3.selectAll("input").on("click", scoreBallot)
+    console.log(errorCode)
+    errorCounter++
+    if (errorCode == "wrongVote") {
+        errorMessage.html("Error! Rescore Ballot!")
+        d3.selectAll("input").on("click", scoreBallot)
+    }
+    if (errorCode == "alreadyEliminated") {
+        errorMessage.html("Error! Candidate Already Eliminated! Select another!")
+        d3.selectAll("input").on("click", eliminateWhom)
+    }
+    if (errorCode == "wrongElimination") {
+        errorMessage.html("Error! Incorrect Candidate Eliminated! Select another!")
+        d3.selectAll("input").on("click", eliminateWhom)
+    }
 }
 
 function createBallotScoreSheet(ballot)
@@ -190,38 +202,59 @@ function createBallotScoreSheet(ballot)
 
 function eliminateProcedure() {
     console.log("eliminate someone")
-    console.log("who do we eliminate?")
+    console.log("Whom do we eliminate?")
     d3.selectAll("input").on("click", eliminateWhom);
 }
 
 function eliminateWhom() {
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
-    console.log(elementValue)
-    console.log((ballotStack[ballotCounter][elementValue]['candidate']) + " has been eliminated.")
-    scoreSheet[elementValue]['eliminated'] = true
-    scoreSheet[elementValue]
-    
-    createTable(ballotStack[ballotCounter])
-    createScorecard(ballotStack[ballotCounter])
-    createPlayerScore()
-    d3.selectAll("input").on("click", doSomething);
-}
+    //test whether correct candidate has been eliminated
+    //min([scoreSheet[0]['total'],scoreSheet[1]['total'],scoreSheet[2]['total'],scoreSheet[3]['total'],scoreSheet[4]['total']])
 
+    //generate list of vote totals of REMAINING candidates
+    avail_votes = []
+    scoreSheet.forEach((cand) => {
+        if (cand['eliminated'] == false) {
+            avail_votes.push(cand['total'])
+        }
+    });
+    
+    least_votes = Math.min(...avail_votes)
+    
+    if (scoreSheet[elementValue]['eliminated'] == true) {
+        errorProcedure('alreadyEliminated')
+    }
+    else if (scoreSheet[elementValue]['total'] != least_votes) {
+        errorProcedure('wrongElimination')
+    }
+    else {
+        console.log(elementValue)
+        console.log((ballotStack[ballotCounter][elementValue]['candidate']) + " has been eliminated.")
+    
+        scoreSheet[elementValue]['eliminated'] = true
+        scoreSheet[elementValue]
+    
+        createTable(ballotStack[ballotCounter])
+        createScorecard(ballotStack[ballotCounter])
+        createPlayerScore()
+        d3.selectAll("input").on("click", doSomething);
+    };
+}
 
 function scoreBallot(elementValue) {
     
     if (ballotStack[ballotCounter][elementValue][rounds[roundCounter]]==='x') {
         //console.log(ballotStack[ballotCounter][elementValue][rounds[roundCounter]])
         console.log("You chose wisely.")
-        error = 0
+        error = false
         correctCounter++
     }
     else {
         console.log("You chose poorly.")
-        errorCounter++
-        error = 1
-        errorProcedure()
+        //errorCounter++
+        error = true
+        errorProcedure("wrongVote")
     }
 
     console.log(ballotCounter)
@@ -237,7 +270,7 @@ function scoreBallot(elementValue) {
     
     ballotCounter++
     
-    if (error == 1) {
+    if (error == true) {
         ballotCounter--
     };
 
@@ -288,8 +321,11 @@ d3.selectAll("input").on("click", doSomething);
 
 
 // make sure eliminated candidate has least votes
-// display vote for eliminated candidate
-// ballot exhausted function
+// error codes
+// ballot exhausted function'
+// error if vote for eliminated candidate
+// make it so you can only eliminate at the end of round
+// recalculate total votes to exclude eliminated candidates
 
 
 
