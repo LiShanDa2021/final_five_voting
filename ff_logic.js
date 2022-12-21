@@ -32,6 +32,7 @@ var noBallots = 5
 var ballotCounter = 0
 var ballot = []
 var remain_cand = 5
+var endofRound = false
 
 function createBallots(candidates)
 {
@@ -187,6 +188,10 @@ function errorProcedure(errorCode) {
         errorMessage.html("Error! Incorrect Candidate Eliminated! Select another!")
         d3.selectAll("input").on("click", eliminateWhom)
     }
+    if (errorCode == "notEndofRound") {
+        errorMessage.html("Error! Action not allowed at this time!")
+        d3.selectAll("input").on("click", doSomething)
+    }
 }
 
 function createBallotScoreSheet(ballot)
@@ -209,10 +214,7 @@ function eliminateProcedure() {
 function eliminateWhom() {
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
-    //test whether correct candidate has been eliminated
-    //min([scoreSheet[0]['total'],scoreSheet[1]['total'],scoreSheet[2]['total'],scoreSheet[3]['total'],scoreSheet[4]['total']])
 
-    //generate list of vote totals of REMAINING candidates
     avail_votes = []
     scoreSheet.forEach((cand) => {
         if (cand['eliminated'] == false) {
@@ -302,9 +304,13 @@ function doSomething() {
     // console.log(elementValue)
 
     if (elementValue === "Eliminate") {
-        eliminateProcedure()
+        if (endofRound == true) {
+            eliminateProcedure()
+        }
+        else {
+            errorProcedure("notEndofRound")
+        }
     }
-
     else {
         scoreBallot(elementValue)
     }
@@ -320,12 +326,16 @@ d3.selectAll("input").on("click", doSomething);
 
 
 
-// make sure eliminated candidate has least votes
+// make sure eliminated candidate has least votes OK
 // error codes
-// ballot exhausted function'
+// ballot exhausted function
+// error if vote for eliminated candiate !!!
 // error if vote for eliminated candidate
-// make it so you can only eliminate at the end of round
+// make it so you can only eliminate at the end of round !!!!
 // recalculate total votes to exclude eliminated candidates
+// error if voting for eliminated candidate -- see exhausted function
+// declare winner function
+// make sure winner is actual winner
 
 
 
