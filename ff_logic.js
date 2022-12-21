@@ -192,6 +192,10 @@ function errorProcedure(errorCode) {
         errorMessage.html("Error! Action not allowed at this time!")
         d3.selectAll("input").on("click", doSomething)
     }
+    if (errorCode == "ballotNotExhausted") {
+        errorMessage.html("Error! Ballot has not been exhausted! Score ballot!")
+        d3.selectAll("input").on("click", doSomething)
+    }
 }
 
 function createBallotScoreSheet(ballot)
@@ -232,7 +236,9 @@ function eliminateWhom() {
     }
     else {
         console.log(elementValue)
-        console.log((ballotStack[ballotCounter][elementValue]['candidate']) + " has been eliminated.")
+
+        var errorMessage = d3.select("#errorMessage");
+        errorMessage.html((ballotStack[ballotCounter][elementValue]['candidate']) + " has been eliminated. Begin next round!")
     
         scoreSheet[elementValue]['eliminated'] = true
         scoreSheet[elementValue]
@@ -244,10 +250,36 @@ function eliminateWhom() {
     };
 }
 
+function exhuastedProcedure() {
+    console.log("You have successfully clicked the ballot exhuasted button.")
+    // check to see if the ballot is actually exhausted
+        //ballotStack[ballotCounter][elementValue][rounds[roundCounter]]==='x'
+        //scoreSheet[elementValue]['eliminated']
+        //find out if that candidate eliminated = true
+    i = 0
+    ballotStack[ballotCounter].forEach((cand) => {
+        if (cand[rounds[roundCounter]]==='x') {
+            cand_index = i
+            console.log(cand_index)
+        }
+        i++
+    });
+    if (scoreSheet[cand_index]['eliminated'] == true) {
+        console.log("Ballot is indeed exhausted")
+    }
+    else {
+        errorProcedure("ballotNotExhausted")
+    };
+    d3.selectAll("input").on("click", doSomething);
+}
+
+function winnerProcedure() {
+    
+}
+
 function scoreBallot(elementValue) {
     
     if (ballotStack[ballotCounter][elementValue][rounds[roundCounter]]==='x') {
-        //console.log(ballotStack[ballotCounter][elementValue][rounds[roundCounter]])
         console.log("You chose wisely.")
         error = false
         correctCounter++
@@ -311,6 +343,9 @@ function doSomething() {
             errorProcedure("notEndofRound")
         }
     }
+    else if (elementValue === "Exhuasted") {
+        exhuastedProcedure()
+    }
     else {
         scoreBallot(elementValue)
     }
@@ -325,17 +360,21 @@ createScorecard(ballotStack[ballotCounter])
 d3.selectAll("input").on("click", doSomething);
 
 
-
 // make sure eliminated candidate has least votes OK
-// error codes
+    // make error message disappear after selecting correct candidate
 // ballot exhausted function
 // error if vote for eliminated candiate !!!
 // error if vote for eliminated candidate
-// make it so you can only eliminate at the end of round !!!!
+
+// find out what is going on with truncating the values for the buttons and why they only display part of the name
+
 // recalculate total votes to exclude eliminated candidates
 // error if voting for eliminated candidate -- see exhausted function
+
 // declare winner function
 // make sure winner is actual winner
+
+// error counter score should change immediately for all actions that lead to errors
 
 
 
