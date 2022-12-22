@@ -33,6 +33,7 @@ var ballotCounter = 0
 var ballot = []
 var remain_cand = 5
 var endofRound = false
+var exhaustedBallots = 0
 
 function createBallots(candidates)
 {
@@ -71,7 +72,6 @@ function createBallots(candidates)
     
     return ballotStack
 }
-
 
 function createTable(ballot) {
     var tbody = d3.select("#ballot");
@@ -196,6 +196,23 @@ function errorProcedure(errorCode) {
         errorMessage.html("Error! Ballot has not been exhausted! Score ballot!")
         d3.selectAll("input").on("click", doSomething)
     }
+    if (errorCode == "choseEliminated") {
+        errorMessage.html("Error! Candidate has been eliminated! Choose another action!")
+        d3.selectAll("input").on("click", doSomething)
+    }
+    if (errorCode == "noWinner") {
+        errorMessage.html("Error! There is no winner at this time!")
+        d3.selectAll("input").on("click", doSomething)
+    }
+    if (errorCode == "wrongWinner") {
+        errorMessage.html("Error! Wrong winner selected! Choose again!")
+        d3.selectAll("input").on("click", selectWinner)
+    }
+
+}
+
+function selectWinner() {
+
 }
 
 function createBallotScoreSheet(ballot)
@@ -210,8 +227,9 @@ function createBallotScoreSheet(ballot)
 
 
 function eliminateProcedure() {
-    console.log("eliminate someone")
-    console.log("Whom do we eliminate?")
+    var errorMessage = d3.select("#errorMessage");
+    errorMessage.html("")
+    errorMessage.html("Choose a candidate to eliminate.")
     d3.selectAll("input").on("click", eliminateWhom);
 }
 
@@ -266,6 +284,31 @@ function exhuastedProcedure() {
     });
     if (scoreSheet[cand_index]['eliminated'] == true) {
         console.log("Ballot is indeed exhausted")
+        var errorMessage = d3.select("#errorMessage");
+        errorMessage.html("")
+        errorMessage.html("Ballot is Exhausted. Skipping Ballot!")
+
+        ballotCounter++
+        correctCounter++
+        exhaustedBallots++
+
+        for (i=0; i<ballotStack[ballotCounter].length; i++) {
+            scoreSheet[i]['total'] = scoreSheet[i]['first'] + scoreSheet[i]['second'] + scoreSheet[i]['third'] + scoreSheet[i]['fourth']
+            scoreSheet[i]['neededToWin'] = Math.ceil(((noBallots*(roundCounter+1))/2) - exhaustedBallots) - scoreSheet[i]['total'] 
+        }
+
+        if (ballotCounter == ballotStack.length) {
+            var errorMessage = d3.select("#errorMessage");
+            errorMessage.html("")
+            errorMessage.html("Ballot skipped. End of Round! Take appropriate action.")
+            roundCounter++
+            ballotCounter = 0
+            endofRound = true
+        }
+
+        createTable(ballotStack[ballotCounter])
+        createScorecard(ballotStack[ballotCounter])
+        createPlayerScore()
     }
     else {
         errorProcedure("ballotNotExhausted")
@@ -274,15 +317,28 @@ function exhuastedProcedure() {
 }
 
 function winnerProcedure() {
-    
+    console.log("You have successfully pressed the declare winner button.")
+
+    d3.selectAll("input").on("click", doSomething);
 }
 
 function scoreBallot(elementValue) {
     
-    if (ballotStack[ballotCounter][elementValue][rounds[roundCounter]]==='x') {
+    if ((ballotStack[ballotCounter][elementValue][rounds[roundCounter]]==='x') && (scoreSheet[elementValue]['eliminated'])) {
+        errorProcedure('choseEliminated')
+    }
+    else if (ballotStack[ballotCounter][elementValue][rounds[roundCounter]]==='x') {
         console.log("You chose wisely.")
         error = false
         correctCounter++
+        for (i=0; i<ballotStack[ballotCounter].length; i++) {
+            if (ballotStack[ballotCounter][i][rounds[roundCounter]] === 'x') {
+                scoreSheet[i][rounds[roundCounter]] = scoreSheet[i][rounds[roundCounter]] + 1
+            }
+            scoreSheet[i]['total'] = scoreSheet[i]['first'] + scoreSheet[i]['second'] + scoreSheet[i]['third'] + scoreSheet[i]['fourth']
+            scoreSheet[i]['neededToWin'] = Math.ceil(((noBallots*(roundCounter+1))/2) - exhaustedBallots) - scoreSheet[i]['total'] 
+        }
+        ballotCounter++
     }
     else {
         console.log("You chose poorly.")
@@ -290,23 +346,6 @@ function scoreBallot(elementValue) {
         error = true
         errorProcedure("wrongVote")
     }
-
-    console.log(ballotCounter)
-
-    
-    for (i=0; i<ballotStack[ballotCounter].length; i++) {
-        if (ballotStack[ballotCounter][i][rounds[roundCounter]] === 'x') {
-            scoreSheet[i][rounds[roundCounter]] = scoreSheet[i][rounds[roundCounter]] + 1
-        }
-        scoreSheet[i]['total'] = scoreSheet[i]['first'] + scoreSheet[i]['second'] + scoreSheet[i]['third'] + scoreSheet[i]['fourth']
-        scoreSheet[i]['neededToWin'] = Math.ceil((noBallots*(roundCounter+1))/2) - scoreSheet[i]['total']
-    }
-    
-    ballotCounter++
-    
-    if (error == true) {
-        ballotCounter--
-    };
 
     if (ballotCounter == ballotStack.length) {
         var errorMessage = d3.select("#errorMessage");
@@ -337,6 +376,7 @@ function doSomething() {
 
     if (elementValue === "Eliminate") {
         if (endofRound == true) {
+            endofRound = false
             eliminateProcedure()
         }
         else {
@@ -376,6 +416,15 @@ d3.selectAll("input").on("click", doSomething);
 
 // error counter score should change immediately for all actions that lead to errors
 
+// fix the error where errors get counted as votes toward the correct candidate
+
+// create messages in message box where absent
+
+//find number of exhausted ballots so they don't count toward total
+
+// fix problem where you can click eliminate button at any time
+
+// make it so you can't click exhausted during elimination
 
 
 
