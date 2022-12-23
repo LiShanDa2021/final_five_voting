@@ -28,12 +28,14 @@ var ballotCand = []
 var ballotParty = []
 var ballotStack = []
 var scoreSheet = []
-var noBallots = 5
+var noBallots = 15
 var ballotCounter = 0
 var ballot = []
 var remain_cand = 5
 var endofRound = false
 var exhaustedBallots = 0
+var eliminatedCandidates = []
+var eliminatedCandidate
 
 function createBallots(candidates)
 {
@@ -70,7 +72,9 @@ function createBallots(candidates)
         ballot = []
     }
     
+    originalBallotStack = ballotStack
     return ballotStack
+    return originalBallotStack
 }
 
 function createTable(ballot) {
@@ -260,20 +264,44 @@ function eliminateWhom() {
     
         scoreSheet[elementValue]['eliminated'] = true
         scoreSheet[elementValue]
-    
-        createTable(ballotStack[ballotCounter])
-        createScorecard(ballotStack[ballotCounter])
-        createPlayerScore()
-        d3.selectAll("input").on("click", doSomething);
+        eliminatedCandidate = ballotStack[ballotCounter][elementValue]['candidate']
+        eliminatedCandidates.push(ballotStack[ballotCounter][elementValue]['candidate'])
+        redistributeVotes()
+        
+        // createTable(ballotStack[ballotCounter])
+        // createScorecard(ballotStack[ballotCounter])
+        // createPlayerScore()
+        // d3.selectAll("input").on("click", doSomething);
     };
 }
 
+function redistributeVotes() {
+    console.log('redistributing')
+    ballotStack = []
+    for (i = 0; i < originalBallotStack.length; i++) {
+        console.log(originalBallotStack[i])
+        originalBallotStack[i].forEach((candidate) => {
+            console.log(candidate)
+            if (candidate['candidate'] == eliminatedCandidate && candidate['first']==='x') {
+                ballotStack.push(originalBallotStack[i])
+            }
+            });
+        };
+    console.log(ballotStack)
+    console.log(ballotStack[ballotCounter])
+    createTable(ballotStack[ballotCounter])
+    createScorecard(ballotStack[ballotCounter])
+    createPlayerScore()
+    d3.selectAll("input").on("click", doSomething);
+    }
+
+
 function exhuastedProcedure() {
+
+    // this will need to be completely reworked
+
     console.log("You have successfully clicked the ballot exhuasted button.")
-    // check to see if the ballot is actually exhausted
-        //ballotStack[ballotCounter][elementValue][rounds[roundCounter]]==='x'
-        //scoreSheet[elementValue]['eliminated']
-        //find out if that candidate eliminated = true
+    
     i = 0
     ballotStack[ballotCounter].forEach((cand) => {
         if (cand[rounds[roundCounter]]==='x') {
@@ -290,12 +318,12 @@ function exhuastedProcedure() {
 
         ballotCounter++
         correctCounter++
-        exhaustedBallots++
+        // exhaustedBallots++
 
-        for (i=0; i<ballotStack[ballotCounter].length; i++) {
-            scoreSheet[i]['total'] = scoreSheet[i]['first'] + scoreSheet[i]['second'] + scoreSheet[i]['third'] + scoreSheet[i]['fourth']
-            scoreSheet[i]['neededToWin'] = Math.ceil(((noBallots*(roundCounter+1))/2) - exhaustedBallots) - scoreSheet[i]['total'] 
-        }
+        // for (i=0; i<ballotStack[ballotCounter].length; i++) {
+        //     scoreSheet[i]['total'] = scoreSheet[i]['first'] + scoreSheet[i]['second'] + scoreSheet[i]['third'] + scoreSheet[i]['fourth']
+        //     scoreSheet[i]['neededToWin'] = Math.ceil(((noBallots*(roundCounter+1))/2) - exhaustedBallots) - scoreSheet[i]['total'] 
+        // }
 
         if (ballotCounter == ballotStack.length) {
             var errorMessage = d3.select("#errorMessage");
@@ -336,7 +364,7 @@ function scoreBallot(elementValue) {
                 scoreSheet[i][rounds[roundCounter]] = scoreSheet[i][rounds[roundCounter]] + 1
             }
             scoreSheet[i]['total'] = scoreSheet[i]['first'] + scoreSheet[i]['second'] + scoreSheet[i]['third'] + scoreSheet[i]['fourth']
-            scoreSheet[i]['neededToWin'] = Math.ceil(((noBallots*(roundCounter+1))/2) - exhaustedBallots) - scoreSheet[i]['total'] 
+            scoreSheet[i]['neededToWin'] = Math.ceil((noBallots/2) + 1) - scoreSheet[i]['total'] 
         }
         ballotCounter++
     }
@@ -351,9 +379,9 @@ function scoreBallot(elementValue) {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
         errorMessage.html("End of Round! Take appropriate action.")
+        endofRound = true
         roundCounter++
         ballotCounter = 0
-        endofRound = true
     }
     
     createTable(ballotStack[ballotCounter])
@@ -425,6 +453,8 @@ d3.selectAll("input").on("click", doSomething);
 // fix problem where you can click eliminate button at any time
 
 // make it so you can't click exhausted during elimination
+
+// rewrite eliminate procedure so next only count eliminated candidate's ballots
 
 
 
