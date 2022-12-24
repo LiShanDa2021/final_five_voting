@@ -30,7 +30,7 @@ var ballotCand = []
 var ballotParty = []
 var ballotStack = []
 var scoreSheet = []
-var noBallots = 15
+var noBallots = 11
 var ballotCounter = 0
 var ballot = []
 var cheatSheet = []
@@ -39,6 +39,7 @@ var endofRound = false
 var exhaustedBallots = 0
 var eliminatedCandidates = []
 var eliminatedCandidate
+var winning_cand = 'nobody'
 
 function createBallots(candidates)
 {
@@ -68,7 +69,6 @@ function createBallots(candidates)
 
         for (i = 0; i < 5; i++)
         {
-            
             //delete chosen candidate from avail_candidates once we have multiple candidates same party
 
             ballot.push({candidate : ballot_candidates[i]['candidate'], party : ballot_candidates[i]['party'], first: ballotVotes[i][0], second: ballotVotes[i][1], third: ballotVotes[i][2], fourth: ballotVotes[i][3], fifth: ballotVotes[i][4]})
@@ -95,6 +95,7 @@ function createBallots(candidates)
     
     originalBallotStack = ballotStack
     return ballotStack
+    return ballot_candidates
     console.log(ballotStack)
     return originalBallotStack
 }
@@ -225,9 +226,6 @@ function errorProcedure(errorCode) {
     }
 }
 
-function selectWinner() {
-
-}
 
 function createBallotScoreSheet(ballot)
 {
@@ -299,8 +297,13 @@ function redistributeVotes() {
     createScorecard(ballotStack[ballotCounter])
     createPlayerScore()
     console.log(ballotStack)
+    if (ballotStack.length == 0) {
+        var errorMessage = d3.select("#errorMessage");
+        errorMessage.html(eliminatedCandidate + " has been eliminated but has no votes to redistribute. Choose an additional candidate to eliminate!")
+        d3.selectAll("input").on("click", eliminateWhom)
+    };
     d3.selectAll("input").on("click", doSomething);
-    }
+}
 
 
 function exhaustedProcedure() {
@@ -347,8 +350,40 @@ function exhaustedProcedure() {
 
 function winnerProcedure() {
     console.log("You have successfully pressed the declare winner button.")
+    winner = false
+    for (i = 0; i < 5; i++) {
+        if (scoreSheet[i]['neededToWin'] <= 0) {
+            console.log("We have a winner")
+            winner = true
+            winning_cand = scoreSheet[i]['candidate']
+            console.log(winning_cand)
+        }
+    };
+    if (winner == true) {
+        var errorMessage = d3.select("#errorMessage");
+        errorMessage.html("")
+        errorMessage.html("Select the winner!")
+    }
+    else {
+        errorProcedure('noWinner')
+    }
+    d3.selectAll("input").on("click", selectWinner);;
+}
 
-    d3.selectAll("input").on("click", doSomething);
+function selectWinner() {
+    let changedElement = d3.select(this);
+    let elementValue = changedElement.property("value");
+    console.log('here is the element value')
+    console.log(elementValue)
+    console.log(ballotStack[ballot])
+    if (ballot_candidates[elementValue]['candidate'] == winning_cand) {
+        var errorMessage = d3.select("#errorMessage");
+        errorMessage.html("")
+        errorMessage.html(winning_cand + " is the winner! Thank you for counting!")
+    }
+    else {
+        errorProcedure('wrongWinner')
+    }
 }
 
 function scoreBallot(elementValue) {
@@ -366,26 +401,6 @@ function scoreBallot(elementValue) {
             choiceCounter++
         }
     }
-    
-    // for (choice = 0; choice < choices.length; choice++) {
-    //     console.log("we are on choice " + [choices[choice]])
-    //     //console.log(ballotStack[ballotCounter])
-    //     // could test for no candidate eliminated to stop loop and save resources
-    //     // but let's get this working first
-    //     for (cand = 0; cand < ballotStack[ballotCounter].length; cand++) {
-
-
-    //         console.log("candidate is eliminated")
-    //         console.log(scoreSheet[cand]['eliminated'])
-    //         console.log("candidate is chosen")
-    //         console.log(ballotStack[ballotCounter][cand][choices[choice]])
-
-    //         if ((ballotStack[ballotCounter][cand][choices[choice]]==='x') && (scoreSheet[cand]['eliminated'])) {
-    //             choiceCounter++
-    //             console.log(choiceCounter)
-    //         }
-    //     }
-    // }
 
     console.log([choices[choiceCounter]])
 
@@ -398,7 +413,7 @@ function scoreBallot(elementValue) {
                 scoreSheet[i][choices[choiceCounter]] = scoreSheet[i][choices[choiceCounter]] + 1
             }
             scoreSheet[i]['total'] = scoreSheet[i]['first'] + scoreSheet[i]['second'] + scoreSheet[i]['third'] + scoreSheet[i]['fourth']
-            scoreSheet[i]['neededToWin'] = Math.ceil((noBallots/2) + 1) - scoreSheet[i]['total'] 
+            scoreSheet[i]['neededToWin'] = Math.floor((noBallots/2) + 1) - scoreSheet[i]['total'] 
         }
         ballotCounter++
     }
@@ -444,6 +459,9 @@ function doSomething() {
     }
     else if (elementValue === "Exhuasted") {
         exhuastedProcedure()
+    }
+    else if (elementValue === "Declare") {
+        winnerProcedure()
     }
     else {
         scoreBallot(elementValue)
