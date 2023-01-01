@@ -224,6 +224,10 @@ function errorProcedure(errorCode) {
         errorMessage.html("Error! Wrong winner selected! Choose again!")
         d3.selectAll("input").on("click", selectWinner)
     }
+    if (errorCode == "isWinner") {
+        errorMessage.html("Error! Choose a different action!")
+        d3.selectAll("input").on("click", doSomething)
+    }
 }
 
 
@@ -429,6 +433,8 @@ function scoreBallot(elementValue) {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
         errorMessage.html("End of Round! Take appropriate action.")
+
+
         endofRound = true
         roundCounter++
         ballotCounter = 0
@@ -450,10 +456,24 @@ function doSomething() {
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
 
+    winner = false
+
+    for (i = 0; i < 5; i++) {
+        if (scoreSheet[i]['neededToWin'] <= 0) {
+            console.log("We have a winner")
+            winner = true
+            winning_cand = scoreSheet[i]['candidate']
+            console.log(winning_cand)
+        }
+    };
+
     if (elementValue === "Eliminate") {
-        if (endofRound == true) {
+        if (endofRound == true && winner == false) {
             endofRound = false
             eliminateProcedure()
+        }
+        else if (endofRound == true && winner == true) {
+            errorProcedure("isWinner")
         }
         else {
             errorProcedure("notEndofRound")
