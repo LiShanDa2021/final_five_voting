@@ -35,6 +35,7 @@ var ballotCounter = 0
 var ballot = []
 var cheatSheet = []
 var remain_cand = 5
+var candidates_list = []
 var endofRound = false
 var exhaustedBallots = 0
 var eliminatedCandidates = []
@@ -51,6 +52,7 @@ function createBallots(candidates)
         candidate = (Object.values(avail_candidates[i])[0][(Math.floor(Math.random() * (avail_candidates[i][party].length)))]);
 
         ballot_candidates.push({candidate : candidate, party : party})
+        candidates_list.push(candidate)
     }
     //console.log(avail_candidates)
     for (iterator = 0; iterator<noBallots; iterator++) {
@@ -94,10 +96,8 @@ function createBallots(candidates)
     }
     
     originalBallotStack = ballotStack
-    return ballotStack
-    return ballot_candidates
-    console.log(ballotStack)
-    return originalBallotStack
+    console.log(candidates_list)
+    return ballotStack, ballot_candidates, originalBallotStack
 }
 
 function createTable(ballot) {
@@ -246,6 +246,7 @@ function eliminateProcedure() {
 }
 
 function eliminateWhom() {
+    console.log("Whom do we eliminate?")
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
 
@@ -268,18 +269,13 @@ function eliminateWhom() {
         console.log(elementValue)
 
         var errorMessage = d3.select("#errorMessage");
-        errorMessage.html((ballotStack[ballotCounter][elementValue]['candidate']) + " has been eliminated. Redistributing votes. Begin next round!")
+        errorMessage.html((candidates_list[elementValue]) + " has been eliminated. Redistributing votes. Begin next round!")
     
         scoreSheet[elementValue]['eliminated'] = true
         scoreSheet[elementValue]
-        eliminatedCandidate = ballotStack[ballotCounter][elementValue]['candidate']
-        eliminatedCandidates.push(ballotStack[ballotCounter][elementValue]['candidate'])
+        eliminatedCandidate = candidates_list[elementValue]
+        eliminatedCandidates.push(eliminatedCandidate)
         redistributeVotes()
-        
-        // createTable(ballotStack[ballotCounter])
-        // createScorecard(ballotStack[ballotCounter])
-        // createPlayerScore()
-        // d3.selectAll("input").on("click", doSomething);
     };
 }
 
@@ -293,16 +289,22 @@ function redistributeVotes() {
             }
             });
         };
-    createTable(ballotStack[ballotCounter])
-    createScorecard(ballotStack[ballotCounter])
-    createPlayerScore()
-    console.log(ballotStack)
     if (ballotStack.length == 0) {
-        var errorMessage = d3.select("#errorMessage");
-        errorMessage.html(eliminatedCandidate + " has been eliminated but has no votes to redistribute. Choose an additional candidate to eliminate!")
-        d3.selectAll("input").on("click", eliminateWhom)
-    };
-    d3.selectAll("input").on("click", doSomething);
+        noVotesProcedure()
+    }
+    else {
+        createTable(ballotStack[ballotCounter])
+        createScorecard(ballotStack[ballotCounter])
+        createPlayerScore()
+        d3.selectAll("input").on("click", doSomething);
+    }
+}
+
+function noVotesProcedure() {
+    console.log("no votes to redistribute")
+    var errorMessage = d3.select("#errorMessage");
+    errorMessage.html(eliminatedCandidate + " has been eliminated but has no votes to redistribute. Choose an additional candidate to eliminate!")
+    d3.selectAll("input").on("click", eliminateWhom)
 }
 
 
@@ -475,6 +477,9 @@ createTable(ballotStack[ballotCounter])
 createScorecard(ballotStack[ballotCounter])
 
 d3.selectAll("input").on("click", doSomething);
+
+
+// make it so player must declare winner at end of round where there is a winner
 
 
 // create original cheatsheet from cheatsheet
