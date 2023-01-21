@@ -41,6 +41,8 @@ var exhaustedBallots = 0
 var eliminatedCandidates = []
 var eliminatedCandidate
 var winning_cand = 'nobody'
+var hintCode = "Choose the appropriate candidate for this round."
+var hints = 0
 
 function createBallots(candidates)
 {
@@ -131,7 +133,8 @@ function createPlayerScore() {
     cell = row.append("td")
     cell.html("Score this Ballot!")
     cell = row.append("td")
-    cell.html("Ballots Scored Correctly: " + correctCounter)
+    //cell.html("Ballots Scored Correctly: " + correctCounter)
+    cell.html("Hints used: " + hints)
     cell = row.append("td")
     cell.html("Errors: " + errorCounter)
     cell = row.append("td")
@@ -188,13 +191,18 @@ function createScorecard(ballot)
     cell = row5.append("td")
     cell.html("<input type="+"button"+" id="+"winner_button"+" value="+"Declare Winner"+">")
     winnerButton = document.querySelector(".winner_button")
+
+    cell = row5.append("td")
+    cell.html("<input type="+"button"+" id="+"hint_button"+" value="+"Hint"+">")
+    hintButton = document.querySelector(".hint_button")
     
-    return eliminateButton, winnerButton
+    return eliminateButton, winnerButton, hintButton
 };
 
 function errorProcedure(errorCode) {
     var errorMessage = d3.select("#errorMessage");
     console.log(errorCode)
+    createPlayerScore()
     errorCounter++
     if (errorCode == "wrongVote") {
         errorMessage.html("Error! Rescore Ballot!")
@@ -230,6 +238,32 @@ function errorProcedure(errorCode) {
     }
 }
 
+function hintProcedure(hintCode) {
+    console.log("Hint!")
+    console.log(hintCode)
+    createPlayerScore()
+    hints++
+    if (hintCode == "ChooseCorrect") {
+        var errorMessage = d3.select("#errorMessage");
+        errorMessage.html("")
+        errorMessage.html("Choose the appropriate candidate for this round.")
+        d3.selectAll("input").on("click", doSomething)
+    }
+    else if (hintCode == "chooseFewest") {
+        var errorMessage = d3.select("#errorMessage");
+        errorMessage.html("")
+        errorMessage.html("Choose the candidate with the fewest votes. If there is a tie for fewest, choose any candidate with the fewest votes.")
+        d3.selectAll("input").on("click", eliminateWhom)
+    }
+    else if (hintCode == "endOfRound") {
+        var errorMessage = d3.select("#errorMessage");
+        errorMessage.html("")
+        errorMessage.html("At the end of a round, you must eliminate a candiate -- unless there is a winner.")
+        d3.selectAll("input").on("click", eliminateWhom)
+    }
+
+}
+
 
 function createBallotScoreSheet(ballot)
 {
@@ -250,10 +284,19 @@ function eliminateProcedure() {
 }
 
 function eliminateWhom() {
+
     console.log("Whom do we eliminate?")
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
 
+    if (elementValue == "Hint") {
+        console.log(elementValue)
+        console.log("the error procedure has been activated for some reason")
+        hintCode = "chooseFewest"
+        hintProcedure(hintCode)
+    }
+
+    
     avail_votes = []
     scoreSheet.forEach((cand) => {
         if (cand['eliminated'] == false) {
@@ -279,6 +322,7 @@ function eliminateWhom() {
         scoreSheet[elementValue]
         eliminatedCandidate = candidates_list[elementValue]
         eliminatedCandidates.push(eliminatedCandidate)
+        endofRound = false
         redistributeVotes()
     };
 }
@@ -312,50 +356,8 @@ function noVotesProcedure() {
 }
 
 
-function exhaustedProcedure() {
-
-    // this will need to be completely reworked
-
-    console.log("You have successfully clicked the skip button.")
-    
-    i = 0
-    ballotStack[ballotCounter].forEach((cand) => {
-        if (cand[rounds[roundCounter]]==='x') {
-            cand_index = i
-            console.log(cand_index)
-        }
-        i++
-    });
-    if (scoreSheet[cand_index]['eliminated'] == true) {
-        console.log("Ballot is indeed exhausted")
-        var errorMessage = d3.select("#errorMessage");
-        errorMessage.html("")
-        errorMessage.html("Skipping Ballot!")
-
-        ballotCounter++
-        correctCounter++
-
-        if (ballotCounter == ballotStack.length) {
-            var errorMessage = d3.select("#errorMessage");
-            errorMessage.html("")
-            errorMessage.html("Ballot skipped. End of Round! Take appropriate action.")
-            roundCounter++
-            ballotCounter = 0
-            endofRound = true
-        }
-
-        createTable(ballotStack[ballotCounter])
-        createScorecard(ballotStack[ballotCounter])
-        createPlayerScore()
-    }
-    else {
-        errorProcedure("ballotNotExhausted")
-    };
-    d3.selectAll("input").on("click", doSomething);
-}
-
 function winnerProcedure() {
-    console.log("You have successfully pressed the declare winner button.")
+    //console.log("You have successfully pressed the declare winner button.")
     winner = false
     for (i = 0; i < 5; i++) {
         if (scoreSheet[i]['neededToWin'] <= 0) {
@@ -393,6 +395,8 @@ function selectWinner() {
 }
 
 function scoreBallot(elementValue) {
+    
+    hintCode = "ChooseCorrect"
 
     choiceCounter = 0
 
@@ -433,7 +437,7 @@ function scoreBallot(elementValue) {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
         errorMessage.html("End of Round! Take appropriate action.")
-
+        hintCode = "endOfRound"
 
         endofRound = true
         roundCounter++
@@ -449,6 +453,7 @@ function scoreBallot(elementValue) {
 
 function doSomething() {
     console.log("Doin Somethin")
+    createPlayerScore()
     var errorMessage = d3.select("#errorMessage");
     errorMessage.html("")
     var error = 0
@@ -461,6 +466,7 @@ function doSomething() {
     for (i = 0; i < 5; i++) {
         if (scoreSheet[i]['neededToWin'] <= 0) {
             console.log("We have a winner")
+            hintCode = "There is a winner."
             winner = true
             winning_cand = scoreSheet[i]['candidate']
             console.log(winning_cand)
@@ -469,7 +475,6 @@ function doSomething() {
 
     if (elementValue === "Eliminate") {
         if (endofRound == true && winner == false) {
-            endofRound = false
             eliminateProcedure()
         }
         else if (endofRound == true && winner == true) {
@@ -485,6 +490,9 @@ function doSomething() {
     else if (elementValue === "Declare") {
         winnerProcedure()
     }
+    else if (elementValue === "Hint") {
+        hintProcedure(hintCode)
+    }
     else {
         scoreBallot(elementValue)
     }
@@ -499,25 +507,20 @@ createScorecard(ballotStack[ballotCounter])
 d3.selectAll("input").on("click", doSomething);
 
 
-// make it so player must declare winner at end of round where there is a winner
-
-
-// create original cheatsheet from cheatsheet
-//ok need to rework things so votes from eliminated candidate are redistributed
-    // eliminate candidate
-        // create a new ballot stack from eliminated candidates ballots -- check
-    // score votes from 
-
-// if no votes for eliminated candidate
-// if statement ballotstack.len = 0
-    // if zero, choose another candidate to eliminate
+// work on hint system
+// eliminate party column
+// eliminate "choice"
+// give total ballots
+    // take away needed to win
+// create number of hints in score card
+// score this ballot needs to go away
+// fix eliminated undefined error
+    // with and element value ==
 
 
 
 
 
-// make sure eliminated candidate has least votes OK
-    // make error message disappear after selecting correct candidate
 // ballot exhausted function
 // error if vote for eliminated candiate !!!
 // error if vote for eliminated candidate
@@ -543,3 +546,46 @@ d3.selectAll("input").on("click", doSomething);
 // make it so you can't click exhausted during elimination
 
 // rewrite eliminate procedure so next only count eliminated candidate's ballots
+
+
+// function exhaustedProcedure() {
+
+//     // this will need to be completely reworked
+
+//     console.log("You have successfully clicked the skip button.")
+    
+//     i = 0
+//     ballotStack[ballotCounter].forEach((cand) => {
+//         if (cand[rounds[roundCounter]]==='x') {
+//             cand_index = i
+//             console.log(cand_index)
+//         }
+//         i++
+//     });
+//     if (scoreSheet[cand_index]['eliminated'] == true) {
+//         console.log("Ballot is indeed exhausted")
+//         var errorMessage = d3.select("#errorMessage");
+//         errorMessage.html("")
+//         errorMessage.html("Skipping Ballot!")
+
+//         ballotCounter++
+//         correctCounter++
+
+//         if (ballotCounter == ballotStack.length) {
+//             var errorMessage = d3.select("#errorMessage");
+//             errorMessage.html("")
+//             errorMessage.html("Ballot skipped. End of Round! Take appropriate action.")
+//             roundCounter++
+//             ballotCounter = 0
+//             endofRound = true
+//         }
+
+//         createTable(ballotStack[ballotCounter])
+//         createScorecard(ballotStack[ballotCounter])
+//         createPlayerScore()
+//     }
+//     else {
+//         errorProcedure("ballotNotExhausted")
+//     };
+//     d3.selectAll("input").on("click", doSomething);
+// }
