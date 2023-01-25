@@ -5,17 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Final Five Demo</title>
 </head>
+<style>
+    html * {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    #eliminate_button {
+        background-color : red;
+    }
+    #winner_button {
+        background-color : turquoise;
+    }
+    #play_again_button {
+        background-color : lightblue;
+    }
+    #hint_button {
+        background-color : lightgreen;
+    }
+    .action_button {
+        border-radius: 8px;
+        border: none;
+        padding: 10px 20px;
+    }
+    .blackOval {
+        width:16px;
+        height:8px;
+        margin:auto;
+    }
+    .whiteOval {
+        width:16px;
+        height:8px;
+        margin:auto;
+    }
+    .table table-striped
+
+    
+    
+</style>
 <body>
-    <table class="table table-striped" cellspacing="10">
+    <table class="table-striped" cellspacing="15">
         <thead>
             <tr>
-                <th>Candidate</th>
-                <th>Party</th>
-                <th>1st Choice</th>
-                <th>2nd Choice</th>
-                <th>3rd Choice</th>
-                <th>4th Choice</th>
-                <th>5th Choice</th>
+                <th align="left">Candidate</th>
+                <th align="left">Party</th>
+                <th> 1st </th>
+                <th> 2nd </th>
+                <th> 3rd </th>
+                <th> 4th </th>
+                <th> 5th </th>
             </tr>
         </thead>
         <tbody id="ballot">

@@ -41,7 +41,7 @@ var exhaustedBallots = 0
 var eliminatedCandidates = []
 var eliminatedCandidate
 var winning_cand = 'nobody'
-var hintCode = "Choose the appropriate candidate for this round."
+var hintCode = "ChooseCorrect"
 var hints = 0
 
 function createBallots(candidates)
@@ -117,6 +117,12 @@ function createTable(ballot) {
                 cell.text('Eliminated');
                 j++
             }
+            else if (val == "x") {
+                cell.html("<img "+"class="+"blackOval"+" src="+'"Oval.png"'+">")
+            }
+            else if (val == "0") {
+                cell.html("<img "+"class="+"whiteOval"+" src="+'"whiteOval-PNG.png"'+">")
+            }
             else {
                 cell.text(val);
             }
@@ -185,15 +191,15 @@ function createScorecard(ballot)
     let row5 = scoreBody.append("tr");
     //create additional action buttons
     cell = row5.append("td")
-    cell.html("<input type="+"button"+" id="+"eliminate_button"+" value="+"Eliminate Candidate"+">")
+    cell.html("<input type="+"button"+" class="+"action_button"+" id="+"eliminate_button"+" value="+'"Eliminate Candidate"'+">")
     eliminateButton = document.getElementById("eliminate_button")
     //console.log(eliminateButton)
     cell = row5.append("td")
-    cell.html("<input type="+"button"+" id="+"winner_button"+" value="+"Declare Winner"+">")
+    cell.html("<input type="+"button"+" class="+"action_button"+" id="+"winner_button"+" value="+'"Declare Winner"'+">")
     winnerButton = document.querySelector(".winner_button")
 
     cell = row5.append("td")
-    cell.html("<input type="+"button"+" id="+"hint_button"+" value="+"Hint"+">")
+    cell.html("<input type="+"button"+" class="+"action_button"+" id="+"hint_button"+" value="+'"Hint"'+">")
     hintButton = document.querySelector(".hint_button")
     
     return eliminateButton, winnerButton, hintButton
@@ -261,6 +267,12 @@ function hintProcedure(hintCode) {
         errorMessage.html("At the end of a round, you must eliminate a candiate -- unless there is a winner.")
         d3.selectAll("input").on("click", eliminateWhom)
     }
+    else if (hintCode == "isWinner") {
+        var errorMessage = d3.select("#errorMessage");
+        errorMessage.html("")
+        errorMessage.html("There is a winner.")
+        d3.selectAll("input").on("click", eliminateWhom)
+    }
 
 }
 
@@ -306,25 +318,30 @@ function eliminateWhom() {
     
     least_votes = Math.min(...avail_votes)
     
-    if (scoreSheet[elementValue]['eliminated'] == true) {
-        errorProcedure('alreadyEliminated')
-    }
-    else if (scoreSheet[elementValue]['total'] != least_votes) {
-        errorProcedure('wrongElimination')
-    }
-    else {
-        console.log(elementValue)
+    console.log(elementValue)
+    console.log(scoreSheet[elementValue])
 
-        var errorMessage = d3.select("#errorMessage");
-        errorMessage.html((candidates_list[elementValue]) + " has been eliminated. Redistributing votes. Begin next round!")
+    if (scoreSheet[elementValue] !== undefined) {
+        if (scoreSheet[elementValue]['eliminated'] == true) {
+            errorProcedure('alreadyEliminated')
+        }
+        else if (scoreSheet[elementValue]['total'] != least_votes) {
+            errorProcedure('wrongElimination')
+        }
+        else {
+            console.log(elementValue)
     
-        scoreSheet[elementValue]['eliminated'] = true
-        scoreSheet[elementValue]
-        eliminatedCandidate = candidates_list[elementValue]
-        eliminatedCandidates.push(eliminatedCandidate)
-        endofRound = false
-        redistributeVotes()
-    };
+            var errorMessage = d3.select("#errorMessage");
+            errorMessage.html((candidates_list[elementValue]) + " has been eliminated. Redistributing votes. Begin next round!")
+        
+            scoreSheet[elementValue]['eliminated'] = true
+            scoreSheet[elementValue]
+            eliminatedCandidate = candidates_list[elementValue]
+            eliminatedCandidates.push(eliminatedCandidate)
+            endofRound = false
+            redistributeVotes()
+        };
+    }
 }
 
 function redistributeVotes() {
@@ -387,7 +404,8 @@ function selectWinner() {
     if (ballot_candidates[elementValue]['candidate'] == winning_cand) {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
-        errorMessage.html(winning_cand + " is the winner! Thank you for counting!")
+        errorMessage.html(winning_cand + " is the winner! Thank you for counting! " + "<input type="+"button"+" class="+"action_button"+" id="+"play_again_button"+" value="+'"Play Again"'+">")
+        d3.selectAll("input").on("click", doSomething);
     }
     else {
         errorProcedure('wrongWinner')
@@ -466,14 +484,14 @@ function doSomething() {
     for (i = 0; i < 5; i++) {
         if (scoreSheet[i]['neededToWin'] <= 0) {
             console.log("We have a winner")
-            hintCode = "There is a winner."
+            hintCode = "isWinner"
             winner = true
             winning_cand = scoreSheet[i]['candidate']
             console.log(winning_cand)
         }
     };
 
-    if (elementValue === "Eliminate") {
+    if (elementValue === "Eliminate Candidate") {
         if (endofRound == true && winner == false) {
             eliminateProcedure()
         }
@@ -484,14 +502,17 @@ function doSomething() {
             errorProcedure("notEndofRound")
         }
     }
-    else if (elementValue === "Exhuasted") {
-        exhuastedProcedure()
-    }
-    else if (elementValue === "Declare") {
+    // else if (elementValue === "Exhuasted") {
+    //     exhuastedProcedure()
+    // }
+    else if (elementValue === "Declare Winner") {
         winnerProcedure()
     }
     else if (elementValue === "Hint") {
         hintProcedure(hintCode)
+    }
+    else if (elementValue === "Play Again") {
+        window.location.reload()
     }
     else {
         scoreBallot(elementValue)
@@ -515,6 +536,7 @@ d3.selectAll("input").on("click", doSomething);
 // create number of hints in score card
 // score this ballot needs to go away
 // fix eliminated undefined error
+    // line 315 therebouts
     // with and element value ==
 
 
