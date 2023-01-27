@@ -109,22 +109,33 @@ function createTable(ballot) {
     ballot.forEach((cand) => 
     {
         let row = tbody.append("tr")
+        
         j = 0
+        
+        delete(cand.party)
+        
         Object.values(cand).forEach((val) => 
         {
-            let cell = row.append("td");
-            if ((scoreSheet[i]['eliminated'] == true) && (j < 2)) {
-                cell.text('Eliminated');
-                j++
-            }
-            else if (val == "x") {
-                cell.html("<img "+"class="+"blackOval"+" src="+'"Oval.png"'+">")
-            }
-            else if (val == "0") {
-                cell.html("<img "+"class="+"whiteOval"+" src="+'"whiteOval-PNG.png"'+">")
+            let cell = row.append("td")
+            if (val == 'x' | val == "0") {
+                cell.attr("class", "voteSquare");
+                if (val == "x") {
+                    cell.html("<img "+"class="+"Oval"+" src="+'"Oval.png"'+">")
+                }
+                else if (val == "0") {
+                    cell.html("<img "+"class="+"Oval"+" src="+'"whiteOval-PNG.png"'+">")
+                }
+
             }
             else {
-                cell.text(val);
+                cell.attr("class", "notVoteSquare");
+                if ((scoreSheet[i]['eliminated'] == true) && (j < 2)) {
+                cell.text('Eliminated');
+                j++
+                }
+                else {
+                    cell.text(val);
+                }
             }
         });
         i++
@@ -137,7 +148,7 @@ function createPlayerScore() {
 
     let row = playerScore.append("tr");
     cell = row.append("td")
-    cell.html("Score this Ballot!")
+    cell.html("Total Ballots: " + (originalBallotStack.length))
     cell = row.append("td")
     //cell.html("Ballots Scored Correctly: " + correctCounter)
     cell.html("Hints used: " + hints)
@@ -181,12 +192,12 @@ function createScorecard(ballot)
         cell.text("Votes: " + scoreSheet[i]['total'])
     }
     
-    let row4 = scoreBody.append("tr");
-    //create votes needed to win
-    for (i = 0; i < remain_cand; i++) {
-        let cell = row4.append("td")
-        cell.text("Needed to win: " + scoreSheet[i]['neededToWin'])
-    }
+    // let row4 = scoreBody.append("tr");
+    // //create votes needed to win
+    // for (i = 0; i < remain_cand; i++) {
+    //     let cell = row4.append("td")
+    //     cell.text("Needed to win: " + scoreSheet[i]['neededToWin'])
+    // }
 
     let row5 = scoreBody.append("tr");
     //create additional action buttons
@@ -528,16 +539,19 @@ createScorecard(ballotStack[ballotCounter])
 d3.selectAll("input").on("click", doSomething);
 
 
-// work on hint system
+// work on hint system -- are we good
 // eliminate party column
 // eliminate "choice"
 // give total ballots
     // take away needed to win
 // create number of hints in score card
 // score this ballot needs to go away
-// fix eliminated undefined error
+// fix error when you click select winner at inappropriate time, then select a winner, then it doesn't let you go back to counting
+// fix eliminated undefined error -- mostly fixed -- still pops up in certain circumstances
     // line 315 therebouts
     // with and element value ==
+// should receive error if you keep voting after end of round
+// when error no winner selected, cannot go back to counting
 
 
 

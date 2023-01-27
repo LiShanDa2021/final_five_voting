@@ -24,34 +24,64 @@
     .action_button {
         border-radius: 8px;
         border: none;
+        border-color: black;
         padding: 10px 20px;
     }
-    .blackOval {
+    .Oval {
         width:16px;
         height:8px;
         margin:auto;
     }
-    .whiteOval {
-        width:16px;
-        height:8px;
-        margin:auto;
+   
+    .voteSquare {
+        background-color: white;
+        background: white;
+        text-align: center;
     }
-    .table table-striped
+
+    .notVoteSquare {
+        background-color: black;
+        background: black;
+        text-align: left;
+        color: white;
+    }
+
+
+    /* .table table-striped {
+
+    } */
+    .choiceHeader {
+        width:30px;
+        text-align: center;
+    }
+
+    .ballotHeader {
+        background-color: black;
+        background: black;
+        text-align: left;
+        color: white;
+    }
+
+    .table-striped {
+        background: black;
+        background-color: black;
+        border-color: black;
+    }
 
     
     
 </style>
 <body>
-    <table class="table-striped" cellspacing="15">
-        <thead>
+    <table class="table-striped" cellspacing="0" cellpadding="15" border="2">
+        <thead class="ballotHeader">
             <tr>
                 <th align="left">Candidate</th>
-                <th align="left">Party</th>
-                <th> 1st </th>
-                <th> 2nd </th>
-                <th> 3rd </th>
-                <th> 4th </th>
-                <th> 5th </th>
+                <!-- <th align="left">Party</th> -->
+                <th class="choiceHeader"> 1st </th>
+                <th class="choiceHeader"> 2nd </th>
+                <th class="choiceHeader"> 3rd </th>
+                <th class="choiceHeader"> 4th </th>
+                <th class="choiceHeader"> 5th </th>
             </tr>
         </thead>
         <tbody id="ballot">
