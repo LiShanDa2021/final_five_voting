@@ -138,9 +138,17 @@ function createTable(ballot) {
                 }
             }
         });
+        let cell = row.append("td");
+        cell.attr("class", "selectorButton");
+        cell.html("<input type="+"radio"+" name="+"vote-getter"+" value="+i+">")
+        let cell2 = row.append("td");
+        cell2.attr("class", "voteTotalSquare");
+        cell2.text(scoreSheet[i]['total'])
+        console.log(scoreSheet[i]['total'])
         i++
     });
 }
+
 
 function createPlayerScore() {
     var playerScore = d3.select("#playerScore");
@@ -192,12 +200,7 @@ function createScorecard(ballot)
         cell.text("Votes: " + scoreSheet[i]['total'])
     }
     
-    // let row4 = scoreBody.append("tr");
-    // //create votes needed to win
-    // for (i = 0; i < remain_cand; i++) {
-    //     let cell = row4.append("td")
-    //     cell.text("Needed to win: " + scoreSheet[i]['neededToWin'])
-    // }
+   
 
     let row5 = scoreBody.append("tr");
     //create additional action buttons

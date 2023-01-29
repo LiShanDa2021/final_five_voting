@@ -22,10 +22,12 @@
         background-color : lightgreen;
     }
     .action_button {
-        border-radius: 8px;
+        border-radius: 4px;
         border: none;
         border-color: black;
         padding: 10px 20px;
+        color: black;
+        font-weight: bold;
     }
     .Oval {
         width:16px;
@@ -45,7 +47,16 @@
         text-align: left;
         color: white;
     }
+    .selectorButton {
+        background-color: grey;
+        text-align: center;
+    }
 
+    .voteTotalSquare {
+        background-color: grey;
+        text-align: center;
+        font-weight: bold;
+    }
 
     /* .table table-striped {
 
@@ -68,8 +79,9 @@
         border-color: black;
     }
 
-    
-    
+    .messageArea {
+        background-color: transparent;
+    }
 </style>
 <body>
     <table class="table-striped" cellspacing="0" cellpadding="15" border="2">
@@ -82,6 +94,9 @@
                 <th class="choiceHeader"> 3rd </th>
                 <th class="choiceHeader"> 4th </th>
                 <th class="choiceHeader"> 5th </th>
+                <th class="choiceHeader"> Select </th>
+                <th class="choiceHeader"> Total <br> Votes </th>
+
             </tr>
         </thead>
         <tbody id="ballot">
@@ -98,7 +113,7 @@
         <tbody>
             <tr>
                 
-                <td align="center" id="errorMessage"></td>
+                <td align="center" class="messageArea" id="errorMessage"></td>
                 
             </tr>
         </tbody>
