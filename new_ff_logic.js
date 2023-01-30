@@ -158,8 +158,9 @@ function createPlayerScore() {
     cell = row.append("td")
     cell.html("Total Ballots: " + (originalBallotStack.length))
     cell = row.append("td")
-    //cell.html("Ballots Scored Correctly: " + correctCounter)
-    cell.html("Hints used: " + hints)
+    cell.html("Ballots Scored Correctly: " + correctCounter)
+    // cell = row.append("td")
+    // cell.html("Hints used: " + hints)
     cell = row.append("td")
     cell.html("Errors: " + errorCounter)
     cell = row.append("td")
@@ -173,32 +174,32 @@ function createScorecard(ballot)
     var scoreBody = d3.select("#scorecard");
     scoreBody.html("");
 
-    let row = scoreBody.append("tr");
+    // let row = scoreBody.append("tr");
 
-    for (i = 0; i < remain_cand; i++) 
-    {
-        let cell = row.append("td");
-        cell.html("<input type="+"radio"+" name="+"vote-getter"+" value="+i+">")
-    }
+    // for (i = 0; i < remain_cand; i++) 
+    // {
+    //     let cell = row.append("td");
+    //     cell.html("<input type="+"radio"+" name="+"vote-getter"+" value="+i+">")
+    // }
     
-    let row2 = scoreBody.append("tr");
+    // let row2 = scoreBody.append("tr");
 
     //create choice labels
-    for (i = 0; i < remain_cand; i++) 
-    {
-        let cell = row2.append("td");
-        candidate_data=ballot[i]
-        cellText = (candidate_data['candidate']);
-        cell.text(cellText);
-    }
+    // for (i = 0; i < remain_cand; i++) 
+    // {
+    //     let cell = row2.append("td");
+    //     candidate_data=ballot[i]
+    //     cellText = (candidate_data['candidate']);
+    //     cell.text(cellText);
+    // }
 
-    let row3 = scoreBody.append("tr");
+    // let row3 = scoreBody.append("tr");
 
-    //create candidate votes
-    for (i = 0; i < remain_cand; i++) {
-        let cell = row3.append("td")
-        cell.text("Votes: " + scoreSheet[i]['total'])
-    }
+    // //create candidate votes
+    // for (i = 0; i < remain_cand; i++) {
+    //     let cell = row3.append("td")
+    //     cell.text("Votes: " + scoreSheet[i]['total'])
+    // }
     
    
 
