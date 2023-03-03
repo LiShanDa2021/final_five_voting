@@ -225,6 +225,10 @@ function errorProcedure(errorCode) {
     console.log(errorCode)
     createPlayerScore()
     errorCounter++
+    if (errorCode == "isEndOfRound") {
+        errorMessage.html("Next Round Has Not Begun!")
+        d3.selectAll("input").on("click", doSomething)
+    }
     if (errorCode == "wrongVote") {
         errorMessage.html("Error! Rescore Ballot!")
         d3.selectAll("input").on("click", scoreBallot)
@@ -419,6 +423,7 @@ function selectWinner() {
     if (ballot_candidates[elementValue]['candidate'] == winning_cand) {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
+        //alert(winning_cand + " is the winner! Thank you for counting!");
         errorMessage.html(winning_cand + " is the winner! Thank you for counting! " + "<input type="+"button"+" class="+"action_button"+" id="+"play_again_button"+" value="+'"Play Again"'+">")
         d3.selectAll("input").on("click", doSomething);
     }
@@ -428,6 +433,10 @@ function selectWinner() {
 }
 
 function scoreBallot(elementValue) {
+
+    // if (endofRound == true) {
+    //     errorProcedure("isEndOfRound")
+    // }
     
     hintCode = "ChooseCorrect"
 
@@ -530,7 +539,14 @@ function doSomething() {
         window.location.reload()
     }
     else {
-        scoreBallot(elementValue)
+        //if statement to control for end of round
+        if (endofRound == true) {
+            errorProcedure("isEndOfRound")
+            
+        }
+        else {
+            scoreBallot(elementValue)
+        };
     }
 }
 
@@ -542,7 +558,7 @@ createScorecard(ballotStack[ballotCounter])
 
 d3.selectAll("input").on("click", doSomething);
 
-
+// fix it so it doesn't allow you to keep selecting at end of round, it must force you to take another action
 // work on hint system -- are we good
 // eliminate party column
 // eliminate "choice"
