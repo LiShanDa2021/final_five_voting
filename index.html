@@ -21,6 +21,7 @@
     #hint_button {
         background-color : lightgreen;
     }
+
     .action_button {
         border-radius: 4px;
         border: none;
@@ -56,6 +57,51 @@
         background-color: grey;
         text-align: center;
         font-weight: bold;
+    }
+    .background {
+        position:absolute;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        background: rgba(0,0,0,0.5);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+    
+    .alert-box {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        max-width: 450px;
+        width: 100%;
+        background: grey;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align:center;
+        border-radius: 5px;
+    }
+    .alert-box #btdLogo {
+        height: 100px;
+        width: 100;
+        background: white;
+    }
+    
+    .alert-box .btns {
+        margin-top: 20px;
+    }
+
+    .alert-box label {
+        display: inline-flex;
+        background: grey;
+        height: 55px;
+        padding: 0 30px;
+        font-size: 30px;
+        font-weight: 400;
     }
 
     /* .table table-striped {
@@ -114,7 +160,8 @@
         <tbody>
             <tr>
                 
-                <td align="center" class="messageArea" id="errorMessage"></td>
+                <td align="center" class="messageArea" id="errorMessage">
+                </td>
                 
             </tr>
         </tbody>
@@ -139,6 +186,22 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.js"></script>
     <script src="new_ff_logic.js"></script>
+    <div class="background" id="theBackground">
+        <div class="alert-box" id="endScreen">
+            
+            <img id="btdLogo" src="btd.png">
+            
+            <h2 class="winnerCircle" id="winnerCircle"></h2>
+            <h4>You've done it! <br>
+            You've completed IRVing the Tabulator, an Instant Runoff Voting game presented by Bridge the Divide!
+            <p>Game function created by Alex Hatheway.</p>
+            </h4>
+
+            <div class="btns" id="endOfGameButtons"></div>
+            <!-- <label for="">Play again</label> -->
+            <!-- <label for="">Visit Groww Action</label> -->
+        </div>
+    </div>
 </body>
 </html>
 

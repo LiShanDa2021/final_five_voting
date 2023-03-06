@@ -30,7 +30,7 @@ var ballotCand = []
 var ballotParty = []
 var ballotStack = []
 var scoreSheet = []
-var noBallots = 11
+var noBallots = 5
 var ballotCounter = 0
 var ballot = []
 var cheatSheet = []
@@ -43,6 +43,7 @@ var eliminatedCandidate
 var winning_cand = 'nobody'
 var hintCode = "ChooseCorrect"
 var hints = 0
+var errorCode = ""
 
 function createBallots(candidates)
 {
@@ -221,6 +222,7 @@ function createScorecard(ballot)
 };
 
 function errorProcedure(errorCode) {
+    console.log("initiating error procedure")
     var errorMessage = d3.select("#errorMessage");
     console.log(errorCode)
     createPlayerScore()
@@ -393,7 +395,7 @@ function noVotesProcedure() {
 
 
 function winnerProcedure() {
-    //console.log("You have successfully pressed the declare winner button.")
+    console.log("initiating winner procedure.")
     winner = false
     for (i = 0; i < 5; i++) {
         if (scoreSheet[i]['neededToWin'] <= 0) {
@@ -407,14 +409,15 @@ function winnerProcedure() {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
         errorMessage.html("Select the winner!")
+        d3.selectAll("input").on("click", selectWinner);
     }
     else {
-        errorProcedure('noWinner')
+        errorProcedure('noWinner');
     }
-    d3.selectAll("input").on("click", selectWinner);;
 }
 
 function selectWinner() {
+    console.log('selecting winner')
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
     console.log('here is the element value')
@@ -424,7 +427,13 @@ function selectWinner() {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
         //alert(winning_cand + " is the winner! Thank you for counting!");
-        errorMessage.html(winning_cand + " is the winner! Thank you for counting! " + "<input type="+"button"+" class="+"action_button"+" id="+"play_again_button"+" value="+'"Play Again"'+">")
+        d3.select("#theBackground").style("opacity", "1");
+        d3.select("#theBackground").style("pointer-events", "auto");
+        d3.select("#endScreen").style("background", "white");
+        d3.select("#winnerCircle").html(winning_cand + " is the winner!");
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"play_again_button"+" value="+'"Play Again"'+">"+" "+"<input type="+"button"+" class="+"action_button"+" id="+"learn_more"+" value="+'"Learn More About Instant Runoff Voting"'+">")
+        //errorMessage.html(winning_cand + " is the winner! Thank you for counting! " + "<input type="+"button"+" class="+"action_button"+" id="+"play_again_button"+" value="+'"Play Again"'+">")
         d3.selectAll("input").on("click", doSomething);
     }
     else {
@@ -437,7 +446,7 @@ function scoreBallot(elementValue) {
     // if (endofRound == true) {
     //     errorProcedure("isEndOfRound")
     // }
-    
+    console.log("Scoring Ballot")
     hintCode = "ChooseCorrect"
 
     choiceCounter = 0
@@ -495,6 +504,7 @@ function scoreBallot(elementValue) {
 
 function doSomething() {
     console.log("Doin Somethin")
+    console.log("error code= " + errorCode)
     createPlayerScore()
     var errorMessage = d3.select("#errorMessage");
     errorMessage.html("")
@@ -502,6 +512,7 @@ function doSomething() {
 
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
+    console.log(elementValue)
 
     winner = false
 
@@ -538,6 +549,9 @@ function doSomething() {
     else if (elementValue === "Play Again") {
         window.location.reload()
     }
+    else if (elementValue === "Learn More About Instant Runoff Voting") {
+        window.location.href="https://gro-wwaction.org/bridge-the-divide/"
+    }
     else {
         //if statement to control for end of round
         if (endofRound == true) {
@@ -558,46 +572,20 @@ createScorecard(ballotStack[ballotCounter])
 
 d3.selectAll("input").on("click", doSomething);
 
-// fix it so it doesn't allow you to keep selecting at end of round, it must force you to take another action
-// work on hint system -- are we good
-// eliminate party column
-// eliminate "choice"
-// give total ballots
-    // take away needed to win
-// create number of hints in score card
-// score this ballot needs to go away
+// fix it when you select winner and there is no winner and it expects you to select a winner again
+// work on hint system -- are we good? popup window instead?
 // fix error when you click select winner at inappropriate time, then select a winner, then it doesn't let you go back to counting
-// fix eliminated undefined error -- mostly fixed -- still pops up in certain circumstances
-    // line 315 therebouts
-    // with and element value ==
-// should receive error if you keep voting after end of round
 // when error no winner selected, cannot go back to counting
 
 
 
 
 
-// ballot exhausted function
-// error if vote for eliminated candiate !!!
-// error if vote for eliminated candidate
-
-// find out what is going on with truncating the values for the buttons and why they only display part of the name
-
-// recalculate total votes to exclude eliminated candidates
-// error if voting for eliminated candidate -- see exhausted function
-
-// declare winner function
-// make sure winner is actual winner
-
 // error counter score should change immediately for all actions that lead to errors
 
-// fix the error where errors get counted as votes toward the correct candidate
 
-// create messages in message box where absent
 
-//find number of exhausted ballots so they don't count toward total
 
-// fix problem where you can click eliminate button at any time
 
 // make it so you can't click exhausted during elimination
 
