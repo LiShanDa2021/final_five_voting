@@ -30,7 +30,7 @@ var ballotCand = []
 var ballotParty = []
 var ballotStack = []
 var scoreSheet = []
-var noBallots = 5
+var noBallots = 21
 var ballotCounter = 0
 var ballot = []
 var cheatSheet = []
@@ -572,64 +572,8 @@ createScorecard(ballotStack[ballotCounter])
 
 d3.selectAll("input").on("click", doSomething);
 
-// fix it when you select winner and there is no winner and it expects you to select a winner again
-// work on hint system -- are we good? popup window instead?
-// fix error when you click select winner at inappropriate time, then select a winner, then it doesn't let you go back to counting
-// when error no winner selected, cannot go back to counting
-
-
-
-
+// pop up window for hints and errors?
+// center everything
+// make mobile friendly
 
 // error counter score should change immediately for all actions that lead to errors
-
-
-
-
-
-// make it so you can't click exhausted during elimination
-
-// rewrite eliminate procedure so next only count eliminated candidate's ballots
-
-
-// function exhaustedProcedure() {
-
-//     // this will need to be completely reworked
-
-//     console.log("You have successfully clicked the skip button.")
-    
-//     i = 0
-//     ballotStack[ballotCounter].forEach((cand) => {
-//         if (cand[rounds[roundCounter]]==='x') {
-//             cand_index = i
-//             console.log(cand_index)
-//         }
-//         i++
-//     });
-//     if (scoreSheet[cand_index]['eliminated'] == true) {
-//         console.log("Ballot is indeed exhausted")
-//         var errorMessage = d3.select("#errorMessage");
-//         errorMessage.html("")
-//         errorMessage.html("Skipping Ballot!")
-
-//         ballotCounter++
-//         correctCounter++
-
-//         if (ballotCounter == ballotStack.length) {
-//             var errorMessage = d3.select("#errorMessage");
-//             errorMessage.html("")
-//             errorMessage.html("Ballot skipped. End of Round! Take appropriate action.")
-//             roundCounter++
-//             ballotCounter = 0
-//             endofRound = true
-//         }
-
-//         createTable(ballotStack[ballotCounter])
-//         createScorecard(ballotStack[ballotCounter])
-//         createPlayerScore()
-//     }
-//     else {
-//         errorProcedure("ballotNotExhausted")
-//     };
-//     d3.selectAll("input").on("click", doSomething);
-// }
