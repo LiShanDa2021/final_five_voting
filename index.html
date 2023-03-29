@@ -85,6 +85,7 @@
         text-align:center;
         border-radius: 5px;
     }
+
     .alert-box #btdLogo {
         height: 100px;
         width: 100;
@@ -104,9 +105,6 @@
         font-weight: 400;
     }
 
-    /* .table table-striped {
-
-    } */
     .choiceHeader {
         width:30px;
         text-align: center;
@@ -125,9 +123,9 @@
         border-color: black;
     }
 
-    .messageArea {
-        background-color: transparent;
-    }
+
+
+
 </style>
 <body>
     <table class="table-striped" cellspacing="0" cellpadding="15" border="2">
@@ -152,8 +150,6 @@
         </tbody>
     </table>
 
-    
-
     <table cellspacing="10" cellpadding="10">
         <thead>
         </thead>
@@ -176,6 +172,14 @@
         </tbody>
     </table>
 
+    <!-- <div class="background" id="alertBackground">
+        <div class="alert-box" id="errorMessage">
+            <h4>
+
+            </h4>
+        </div>
+    </div> -->
+
     <table cellspacing="10">
         <thead>
         </thead>
@@ -184,24 +188,23 @@
         </tbody>
     </table>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.js"></script>
-    <script src="new_ff_logic.js"></script>
     <div class="background" id="theBackground">
         <div class="alert-box" id="endScreen">
             
-            <img id="btdLogo" src="btd.png">
             
-            <h2 class="winnerCircle" id="winnerCircle"></h2>
-            <h4>You've done it! <br>
-            You've completed IRVing the Tabulator, an Instant Runoff Voting game presented by Bridge the Divide!
-            <p>Game function created by Alex Hatheway.</p>
-            </h4>
+            
+            <div class="winnerCircle" id="winnerCircle"></div>
+            
 
             <div class="btns" id="endOfGameButtons"></div>
             <!-- <label for="">Play again</label> -->
             <!-- <label for="">Visit Groww Action</label> -->
         </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.js"></script>
+    <script src="new_ff_logic.js"></script>
+
 </body>
 </html>
 

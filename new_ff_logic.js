@@ -160,8 +160,6 @@ function createPlayerScore() {
     cell.html("Total Ballots: " + (originalBallotStack.length))
     cell = row.append("td")
     cell.html("Ballots Scored Correctly: " + correctCounter)
-    // cell = row.append("td")
-    // cell.html("Hints used: " + hints)
     cell = row.append("td")
     cell.html("Errors: " + errorCounter)
     cell = row.append("td")
@@ -174,35 +172,6 @@ function createScorecard(ballot)
 {
     var scoreBody = d3.select("#scorecard");
     scoreBody.html("");
-
-    // let row = scoreBody.append("tr");
-
-    // for (i = 0; i < remain_cand; i++) 
-    // {
-    //     let cell = row.append("td");
-    //     cell.html("<input type="+"radio"+" name="+"vote-getter"+" value="+i+">")
-    // }
-    
-    // let row2 = scoreBody.append("tr");
-
-    //create choice labels
-    // for (i = 0; i < remain_cand; i++) 
-    // {
-    //     let cell = row2.append("td");
-    //     candidate_data=ballot[i]
-    //     cellText = (candidate_data['candidate']);
-    //     cell.text(cellText);
-    // }
-
-    // let row3 = scoreBody.append("tr");
-
-    // //create candidate votes
-    // for (i = 0; i < remain_cand; i++) {
-    //     let cell = row3.append("td")
-    //     cell.text("Votes: " + scoreSheet[i]['total'])
-    // }
-    
-   
 
     let row5 = scoreBody.append("tr");
     //create additional action buttons
@@ -223,24 +192,33 @@ function createScorecard(ballot)
 
 function errorProcedure(errorCode) {
     console.log("initiating error procedure")
-    var errorMessage = d3.select("#errorMessage");
+    var errorMessage = d3.select("#winnerCircle");
+    prepareMessageArea()
     console.log(errorCode)
     createPlayerScore()
     errorCounter++
     if (errorCode == "isEndOfRound") {
         errorMessage.html("Next Round Has Not Begun!")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", doSomething)
     }
     if (errorCode == "wrongVote") {
         errorMessage.html("Error! Rescore Ballot!")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", scoreBallot)
     }
     if (errorCode == "alreadyEliminated") {
         errorMessage.html("Error! Candidate Already Eliminated! Select another!")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", eliminateWhom)
     }
     if (errorCode == "wrongElimination") {
         errorMessage.html("Error! Incorrect Candidate Eliminated! Select another!")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", eliminateWhom)
     }
     if (errorCode == "notEndofRound") {
@@ -249,18 +227,26 @@ function errorProcedure(errorCode) {
     }
     if (errorCode == "choseEliminated") {
         errorMessage.html("Error! Candidate has been eliminated! Choose another action!")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", doSomething)
     }
     if (errorCode == "noWinner") {
         errorMessage.html("Error! There is no winner at this time!")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", doSomething)
     }
     if (errorCode == "wrongWinner") {
         errorMessage.html("Error! Wrong winner selected! Choose again!")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", selectWinner)
     }
     if (errorCode == "isWinner") {
         errorMessage.html("Error! Choose a different action!")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", doSomething)
     }
 }
@@ -273,25 +259,34 @@ function hintProcedure(hintCode) {
     if (hintCode == "ChooseCorrect") {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
-        errorMessage.html("Choose the appropriate candidate for this round.")
+        prepareMessageArea()
+        d3.select("#winnerCircle").html("<h4>"+"Choose the appropriate candidate for this round."+"</h4>");
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", doSomething)
     }
     else if (hintCode == "chooseFewest") {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
         errorMessage.html("Choose the candidate with the fewest votes. If there is a tie for fewest, choose any candidate with the fewest votes.")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", eliminateWhom)
     }
     else if (hintCode == "endOfRound") {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
         errorMessage.html("At the end of a round, you must eliminate a candiate -- unless there is a winner.")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", eliminateWhom)
     }
     else if (hintCode == "isWinner") {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
         errorMessage.html("There is a winner.")
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", eliminateWhom)
     }
 
@@ -306,6 +301,12 @@ function createBallotScoreSheet(ballot)
         scoreSheet.push({candidate : candidate, first: 0, second: 0, third: 0, fourth: 0, fifth: 0, total: 0, neededToWin : Math.ceil(noBallots/2), eliminated: false})
     }
     return scoreSheet
+}
+
+function prepareMessageArea() {
+    d3.select("#theBackground").style("opacity", "1");
+    d3.select("#theBackground").style("pointer-events", "auto");
+    d3.select("#endScreen").style("background", "white");
 }
 
 
@@ -329,7 +330,6 @@ function eliminateWhom() {
         hintProcedure(hintCode)
     }
 
-    
     avail_votes = []
     scoreSheet.forEach((cand) => {
         if (cand['eliminated'] == false) {
@@ -426,14 +426,14 @@ function selectWinner() {
     if (ballot_candidates[elementValue]['candidate'] == winning_cand) {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
-        //alert(winning_cand + " is the winner! Thank you for counting!");
         d3.select("#theBackground").style("opacity", "1");
         d3.select("#theBackground").style("pointer-events", "auto");
         d3.select("#endScreen").style("background", "white");
-        d3.select("#winnerCircle").html(winning_cand + " is the winner!");
+        d3.select("#winnerCircle").html(
+        "<img id="+"btdLogo"+" "+"src="+"btd.png>"+"<br>"+
+        "<h2>"+winning_cand + " is the winner!"+"</h2>"+"<h4>"+"You've done it!"+"<br>"+"You've completed IRVing the Tabulator, an Instant Runoff Voting game presented by Bridge the Divide!"+"<p>"+"Game function created by Alex Hatheway."+"</p>"+"</h4>");
         endOfGameButtons = d3.select("#endOfGameButtons")
         endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"play_again_button"+" value="+'"Play Again"'+">"+" "+"<input type="+"button"+" class="+"action_button"+" id="+"learn_more"+" value="+'"Learn More About Instant Runoff Voting"'+">")
-        //errorMessage.html(winning_cand + " is the winner! Thank you for counting! " + "<input type="+"button"+" class="+"action_button"+" id="+"play_again_button"+" value="+'"Play Again"'+">")
         d3.selectAll("input").on("click", doSomething);
     }
     else {
@@ -443,9 +443,6 @@ function selectWinner() {
 
 function scoreBallot(elementValue) {
 
-    // if (endofRound == true) {
-    //     errorProcedure("isEndOfRound")
-    // }
     console.log("Scoring Ballot")
     hintCode = "ChooseCorrect"
 
@@ -512,7 +509,7 @@ function doSomething() {
 
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
-    console.log(elementValue)
+    console.log("doing something " + elementValue)
 
     winner = false
 
@@ -537,9 +534,12 @@ function doSomething() {
             errorProcedure("notEndofRound")
         }
     }
-    // else if (elementValue === "Exhuasted") {
-    //     exhuastedProcedure()
-    // }
+    else if (elementValue === "OK") {
+        console.log("something something")
+        d3.select("#theBackground").style("opacity", "0");
+        d3.select("#theBackground").style("pointer-events", "none");
+        d3.select("#endScreen").style("background", "grey");
+    }
     else if (elementValue === "Declare Winner") {
         winnerProcedure()
     }
@@ -572,8 +572,39 @@ createScorecard(ballotStack[ballotCounter])
 
 d3.selectAll("input").on("click", doSomething);
 
+
+
+
 // pop up window for hints and errors?
 // center everything
 // make mobile friendly
 
 // error counter score should change immediately for all actions that lead to errors
+
+
+ // let row = scoreBody.append("tr");
+
+    // for (i = 0; i < remain_cand; i++) 
+    // {
+    //     let cell = row.append("td");
+    //     cell.html("<input type="+"radio"+" name="+"vote-getter"+" value="+i+">")
+    // }
+    
+    // let row2 = scoreBody.append("tr");
+
+    //create choice labels
+    // for (i = 0; i < remain_cand; i++) 
+    // {
+    //     let cell = row2.append("td");
+    //     candidate_data=ballot[i]
+    //     cellText = (candidate_data['candidate']);
+    //     cell.text(cellText);
+    // }
+
+    // let row3 = scoreBody.append("tr");
+
+    // //create candidate votes
+    // for (i = 0; i < remain_cand; i++) {
+    //     let cell = row3.append("td")
+    //     cell.text("Votes: " + scoreSheet[i]['total'])
+    // }
