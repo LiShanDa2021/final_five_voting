@@ -408,8 +408,12 @@ function winnerProcedure() {
     if (winner == true) {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
-        errorMessage.html("Select the winner!")
-        d3.selectAll("input").on("click", selectWinner);
+        prepareMessageArea()
+        messageArea = d3.select("#winnerCircle")
+        messageArea.html("<h4>"+"Select the winner!"+"</h4>");
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
+        d3.selectAll("input").on("click", doSomething);
     }
     else {
         errorProcedure('noWinner');
@@ -539,6 +543,9 @@ function doSomething() {
         d3.select("#theBackground").style("opacity", "0");
         d3.select("#theBackground").style("pointer-events", "none");
         d3.select("#endScreen").style("background", "grey");
+        if (winner == true) {
+            d3.selectAll("input").on("click", selectWinner)
+        }
     }
     else if (elementValue === "Declare Winner") {
         winnerProcedure()
