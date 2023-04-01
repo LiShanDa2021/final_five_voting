@@ -30,7 +30,7 @@ var ballotCand = []
 var ballotParty = []
 var ballotStack = []
 var scoreSheet = []
-var noBallots = 21
+var noBallots = 15
 var ballotCounter = 0
 var ballot = []
 var cheatSheet = []
@@ -141,7 +141,7 @@ function createTable(ballot) {
         });
         let cell = row.append("td");
         cell.attr("class", "selectorButton");
-        cell.html("<input type="+"radio"+" name="+"vote-getter"+" value="+i+">")
+        cell.html("<input type="+"radio"+" class="+"voteSelect"+" name="+"vote-getter"+" value="+i+">")
         let cell2 = row.append("td");
         cell2.attr("class", "voteTotalSquare");
         cell2.text(scoreSheet[i]['total'])
@@ -219,7 +219,8 @@ function errorProcedure(errorCode) {
         errorMessage.html("Error! Incorrect Candidate Eliminated! Select another!")
         endOfGameButtons = d3.select("#endOfGameButtons")
         endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
-        d3.selectAll("input").on("click", eliminateWhom)
+        d3.selectAll("input").on("click", disappearMessageArea)
+        d3.selectAll(".voteSelect").on("click", eliminateWhom)
     }
     if (errorCode == "notEndofRound") {
         errorMessage.html("Error! Action not allowed at this time!")
@@ -241,7 +242,8 @@ function errorProcedure(errorCode) {
         errorMessage.html("Error! Wrong winner selected! Choose again!")
         endOfGameButtons = d3.select("#endOfGameButtons")
         endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
-        d3.selectAll("input").on("click", selectWinner)
+        d3.selectAll(".action_button").on("click", disappearMessageArea)
+        d3.selectAll(".voteSelect").on("click", selectWinner)
     }
     if (errorCode == "isWinner") {
         errorMessage.html("Error! Choose a different action!")
@@ -309,19 +311,25 @@ function prepareMessageArea() {
     d3.select("#endScreen").style("background", "white");
 }
 
+function disappearMessageArea() {
+    d3.select("#theBackground").style("opacity", "0");
+    d3.select("#theBackground").style("pointer-events", "none");
+    d3.select("#endScreen").style("background", "grey");
+}
 
 function eliminateProcedure() {
-    var errorMessage = d3.select("#errorMessage");
-    errorMessage.html("")
-    errorMessage.html("Choose a candidate to eliminate.")
-    d3.selectAll("input").on("click", eliminateWhom);
+    prepareMessageArea()
+    var messageArea = d3.select("#winnerCircle");
+    messageArea.html("Choose a candidate to eliminate.")
+    console.log("funky")
+    d3.selectAll("input").on("click", disappearMessageArea);
+    d3.selectAll(".voteSelect").on("click", eliminateWhom);
 }
 
 function eliminateWhom() {
-
     console.log("Whom do we eliminate?")
     let changedElement = d3.select(this);
-    let elementValue = changedElement.property("value");
+    elementValue = changedElement.property("value");
 
     if (elementValue == "Hint") {
         console.log(elementValue)
@@ -351,10 +359,15 @@ function eliminateWhom() {
         }
         else {
             console.log(elementValue)
-    
-            var errorMessage = d3.select("#errorMessage");
-            errorMessage.html((candidates_list[elementValue]) + " has been eliminated. Redistributing votes. Begin next round!")
-        
+            console.log("eliminated total votes:" + scoreSheet[elementValue]['total'])
+
+            if (scoreSheet[elementValue]['total'] == 0) {
+                noVotesProcedure()
+            }
+            
+            prepareMessageArea()
+            var messageArea = d3.select("#winnerCircle");
+            messageArea.html((candidates_list[elementValue]) + " has been eliminated. Redistributing votes. Begin next round!")
             scoreSheet[elementValue]['eliminated'] = true
             scoreSheet[elementValue]
             eliminatedCandidate = candidates_list[elementValue]
@@ -388,9 +401,12 @@ function redistributeVotes() {
 
 function noVotesProcedure() {
     console.log("no votes to redistribute")
-    var errorMessage = d3.select("#errorMessage");
-    errorMessage.html(eliminatedCandidate + " has been eliminated but has no votes to redistribute. Choose an additional candidate to eliminate!")
-    d3.selectAll("input").on("click", eliminateWhom)
+    prepareMessageArea
+    var messageArea = d3.select("#winnerCircle");
+    messageArea.html(eliminatedCandidate + " has been eliminated but has no votes to redistribute. Choose an additional candidate to eliminate!")
+    endOfGameButtons = d3.select("#endOfGameButtons")
+    endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
+    d3.selectAll("input").on("click", eliminateProcedure)
 }
 
 
@@ -486,14 +502,16 @@ function scoreBallot(elementValue) {
     }
 
     if (ballotCounter == ballotStack.length) {
-        var errorMessage = d3.select("#errorMessage");
-        errorMessage.html("")
+        var errorMessage = d3.select("#winnerCircle");
+        prepareMessageArea()
         errorMessage.html("End of Round! Take appropriate action.")
         hintCode = "endOfRound"
-
         endofRound = true
         roundCounter++
         ballotCounter = 0
+        endOfGameButtons = d3.select("#endOfGameButtons")
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
+        //d3.selectAll("input").on("click")
     }
     
     createTable(ballotStack[ballotCounter])
@@ -507,8 +525,6 @@ function doSomething() {
     console.log("Doin Somethin")
     console.log("error code= " + errorCode)
     createPlayerScore()
-    var errorMessage = d3.select("#errorMessage");
-    errorMessage.html("")
     var error = 0
 
     let changedElement = d3.select(this);
@@ -525,6 +541,9 @@ function doSomething() {
             winning_cand = scoreSheet[i]['candidate']
             console.log(winning_cand)
         }
+        if (elementValue === "OK") {
+            d3.selectAll("input").on("click", doSomething)
+        }
     };
 
     if (elementValue === "Eliminate Candidate") {
@@ -539,12 +558,10 @@ function doSomething() {
         }
     }
     else if (elementValue === "OK") {
-        console.log("something something")
-        d3.select("#theBackground").style("opacity", "0");
-        d3.select("#theBackground").style("pointer-events", "none");
-        d3.select("#endScreen").style("background", "grey");
+        console.log("something something, the last thing clicked was ok")
+        disappearMessageArea()
         if (winner == true) {
-            d3.selectAll("input").on("click", selectWinner)
+            d3.selectAll(".voteSelect").on("click", selectWinner)
         }
     }
     else if (elementValue === "Declare Winner") {
@@ -581,10 +598,12 @@ d3.selectAll("input").on("click", doSomething);
 
 
 
-
-// pop up window for hints and errors?
-// center everything
+// fix when wrong candidate eliminated and it doesn't do anything
+// fix wrong winner selected error
+// everything in absolute position?
 // make mobile friendly
+
+
 
 // error counter score should change immediately for all actions that lead to errors
 
