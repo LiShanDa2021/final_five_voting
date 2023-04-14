@@ -30,7 +30,7 @@ var ballotCand = []
 var ballotParty = []
 var ballotStack = []
 var scoreSheet = []
-var noBallots = 15
+var noBallots = 21
 var ballotCounter = 0
 var ballot = []
 var cheatSheet = []
@@ -213,7 +213,8 @@ function errorProcedure(errorCode) {
         errorMessage.html("Error! Candidate Already Eliminated! Select another!")
         endOfGameButtons = d3.select("#endOfGameButtons")
         endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
-        d3.selectAll("input").on("click", eliminateWhom)
+        d3.selectAll("input").on("click", disappearMessageArea)
+        d3.selectAll(".voteSelect").on("click", eliminateWhom)
     }
     if (errorCode == "wrongElimination") {
         errorMessage.html("Error! Incorrect Candidate Eliminated! Select another!")
@@ -270,7 +271,8 @@ function hintProcedure(hintCode) {
     else if (hintCode == "chooseFewest") {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
-        errorMessage.html("Choose the candidate with the fewest votes. If there is a tie for fewest, choose any candidate with the fewest votes.")
+        prepareMessageArea()
+        d3.select("#winnerCircle").html("<h4>"+"Choose the candidate with the fewest votes. If there is a tie for fewest, choose any candidate with the fewest votes."+"</h4>");
         endOfGameButtons = d3.select("#endOfGameButtons")
         endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
         d3.selectAll("input").on("click", eliminateWhom)
@@ -278,18 +280,20 @@ function hintProcedure(hintCode) {
     else if (hintCode == "endOfRound") {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
-        errorMessage.html("At the end of a round, you must eliminate a candiate -- unless there is a winner.")
+        prepareMessageArea()
+        d3.select("#winnerCircle").html("<h4>"+"At the end of a round, you must eliminate a candiate -- unless there is a winner.")
         endOfGameButtons = d3.select("#endOfGameButtons")
         endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
-        d3.selectAll("input").on("click", eliminateWhom)
+        d3.selectAll("input").on("click", doSomething)
     }
     else if (hintCode == "isWinner") {
         var errorMessage = d3.select("#errorMessage");
         errorMessage.html("")
-        errorMessage.html("There is a winner.")
+        prepareMessageArea()
+        d3.select("#winnerCircle").html("<h4>"+"There is a winner.")
         endOfGameButtons = d3.select("#endOfGameButtons")
         endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
-        d3.selectAll("input").on("click", eliminateWhom)
+        d3.selectAll("input").on("click", doSomething)
     }
 
 }
@@ -597,40 +601,16 @@ createScorecard(ballotStack[ballotCounter])
 d3.selectAll("input").on("click", doSomething);
 
 
+// candidate does not show up as eliminated before next round begins
+// double message when no votes to redistribute
 
-// fix when wrong candidate eliminated and it doesn't do anything
-// fix wrong winner selected error
+
+// fix when wrong candidate eliminated and it doesn't do anything -- possibly fixed
+// fix wrong winner selected error -- possibly fixed
+
+
 // everything in absolute position?
 // make mobile friendly
 
 
-
 // error counter score should change immediately for all actions that lead to errors
-
-
- // let row = scoreBody.append("tr");
-
-    // for (i = 0; i < remain_cand; i++) 
-    // {
-    //     let cell = row.append("td");
-    //     cell.html("<input type="+"radio"+" name="+"vote-getter"+" value="+i+">")
-    // }
-    
-    // let row2 = scoreBody.append("tr");
-
-    //create choice labels
-    // for (i = 0; i < remain_cand; i++) 
-    // {
-    //     let cell = row2.append("td");
-    //     candidate_data=ballot[i]
-    //     cellText = (candidate_data['candidate']);
-    //     cell.text(cellText);
-    // }
-
-    // let row3 = scoreBody.append("tr");
-
-    // //create candidate votes
-    // for (i = 0; i < remain_cand; i++) {
-    //     let cell = row3.append("td")
-    //     cell.text("Votes: " + scoreSheet[i]['total'])
-    // }
