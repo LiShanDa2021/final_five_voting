@@ -3,12 +3,24 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Final Five Demo</title>
 </head>
 <style>
     html * {
         font-family: Arial, Helvetica, sans-serif;
     }
+     
+    body {
+    background-image: url("voting_stickers.jpg");
+    background-repeat: repeat;
+    background-color: white;
+    }
+
+    /* body background-image {
+
+    } */
+
     #eliminate_button {
         background-color : red;
     }
@@ -20,6 +32,11 @@
     }
     #hint_button {
         background-color : lightgreen;
+    }
+
+    #playerScore {
+        background-color : white;
+        border-color: black;
     }
 
     .action_button {
@@ -128,6 +145,7 @@
 
 </style>
 <body>
+    <background ="voting_stickers.jpg" id="background_picture"></background>
     <table align="center" class="table-striped" cellspacing="0" cellpadding="15" border="2">
         <thead class="ballotHeader">
             <tr>
@@ -150,7 +168,8 @@
         </tbody>
     </table>
 
-    <table align="center" cellspacing="10" cellpadding="10">
+    <br>
+    <!-- <table align="center" cellspacing="10" cellpadding="10">
         <thead>
         </thead>
         <tbody>
@@ -161,24 +180,15 @@
                 
             </tr>
         </tbody>
-    </table>
+    </table> -->
 
-
-    <table align="center" cellspacing="10">
+    <table align="center" cellspacing="0" cellpadding="10" border="2">
         <thead>
         </thead>
         <tbody id="playerScore">
         
         </tbody>
     </table>
-
-    <!-- <div class="background" id="alertBackground">
-        <div class="alert-box" id="errorMessage">
-            <h4>
-
-            </h4>
-        </div>
-    </div> -->
 
     <table align="center" cellspacing="10">
         <thead>

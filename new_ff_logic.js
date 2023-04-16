@@ -30,7 +30,7 @@ var ballotCand = []
 var ballotParty = []
 var ballotStack = []
 var scoreSheet = []
-var noBallots = 21
+var noBallots = 9
 var ballotCounter = 0
 var ballot = []
 var cheatSheet = []
@@ -158,14 +158,23 @@ function createPlayerScore() {
     let row = playerScore.append("tr");
     cell = row.append("td")
     cell.html("Total Ballots: " + (originalBallotStack.length))
+
     cell = row.append("td")
     cell.html("Ballots Scored Correctly: " + correctCounter)
+
     cell = row.append("td")
     cell.html("Errors: " + errorCounter)
+
     cell = row.append("td")
     cell.html("Round: " + (roundCounter + 1))
+
     cell = row.append("td")
     cell.html("Ballots Remaining in Round: " + ((ballotStack.length)-ballotCounter))
+
+    // cell = row.append("td")
+    // cell.html("Time: ")
+
+    // let row = playerScore.append
 }
 
 function createScorecard(ballot)
@@ -298,7 +307,6 @@ function hintProcedure(hintCode) {
 
 }
 
-
 function createBallotScoreSheet(ballot)
 {
     for (i = 0; i < 5; i++)
@@ -392,6 +400,10 @@ function redistributeVotes() {
             }
             });
         };
+    // for (i = ballotStack.length; i < ballotStack.length; i--) {
+    //     var messageArea = d3.select("#winnerCircle");
+    //     messageArea.html(("p"))
+    // }
     if (ballotStack.length == 0) {
         noVotesProcedure()
     }
@@ -410,7 +422,9 @@ function noVotesProcedure() {
     messageArea.html(eliminatedCandidate + " has been eliminated but has no votes to redistribute. Choose an additional candidate to eliminate!")
     endOfGameButtons = d3.select("#endOfGameButtons")
     endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
-    d3.selectAll("input").on("click", eliminateProcedure)
+    //d3.selectAll("input").on("click", eliminateProcedure)
+    d3.selectAll("input").on("click", disappearMessageArea)
+    d3.selectAll(".voteSelect").on("click", eliminateWhom)
 }
 
 
@@ -515,7 +529,6 @@ function scoreBallot(elementValue) {
         ballotCounter = 0
         endOfGameButtons = d3.select("#endOfGameButtons")
         endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
-        //d3.selectAll("input").on("click")
     }
     
     createTable(ballotStack[ballotCounter])
@@ -601,8 +614,9 @@ createScorecard(ballotStack[ballotCounter])
 d3.selectAll("input").on("click", doSomething);
 
 
+// received hint for end of round when it was not end of round
 // candidate does not show up as eliminated before next round begins
-// double message when no votes to redistribute
+
 
 
 // fix when wrong candidate eliminated and it doesn't do anything -- possibly fixed
