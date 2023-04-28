@@ -30,7 +30,7 @@ var ballotCand = []
 var ballotParty = []
 var ballotStack = []
 var scoreSheet = []
-var noBallots = 9
+var noBallots = 11
 var ballotCounter = 0
 var ballot = []
 var cheatSheet = []
@@ -44,6 +44,19 @@ var winning_cand = 'nobody'
 var hintCode = "ChooseCorrect"
 var hints = 0
 var errorCode = ""
+//var minutes = 0
+var seconds = 0
+eliminatedTotalVotes = 0
+
+function createTimer() {
+    setInterval(startTimer, 1000)
+}
+
+function startTimer() {
+    var seconds = seconds++
+}
+
+
 
 function createBallots(candidates)
 {
@@ -144,7 +157,12 @@ function createTable(ballot) {
         cell.html("<input type="+"radio"+" class="+"voteSelect"+" name="+"vote-getter"+" value="+i+">")
         let cell2 = row.append("td");
         cell2.attr("class", "voteTotalSquare");
-        cell2.text(scoreSheet[i]['total'])
+        if (scoreSheet[i]['eliminated'] == true) {
+            cell2.text("--")
+        }
+        else {
+            cell2.text(scoreSheet[i]['total'])
+        }
         console.log(scoreSheet[i]['total'])
         i++
     });
@@ -321,20 +339,27 @@ function prepareMessageArea() {
     d3.select("#theBackground").style("opacity", "1");
     d3.select("#theBackground").style("pointer-events", "auto");
     d3.select("#endScreen").style("background", "white");
+    d3.select("#endOfGameButtons").html("")
 }
 
 function disappearMessageArea() {
+    // messageArea = d3.select("#winnerCircle")
+    // messageArea.html("")
+    // plotArea = d3.select("#plotArea")
+    // plotArea.html("")
     d3.select("#theBackground").style("opacity", "0");
     d3.select("#theBackground").style("pointer-events", "none");
     d3.select("#endScreen").style("background", "grey");
+    d3.select("#endOfGameButtons").html("")
 }
 
 function eliminateProcedure() {
     prepareMessageArea()
     var messageArea = d3.select("#winnerCircle");
     messageArea.html("Choose a candidate to eliminate.")
-    console.log("funky")
-    d3.selectAll("input").on("click", disappearMessageArea);
+    continueButton = d3.selectAll("#endOfGameButtons")
+    continueButton.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"Click Anywhere to Continue"'+"bgcolor="+'"green"'+">")
+    d3.selectAll("div").on("click", disappearMessageArea)
     d3.selectAll(".voteSelect").on("click", eliminateWhom);
 }
 
@@ -372,20 +397,30 @@ function eliminateWhom() {
         else {
             console.log(elementValue)
             console.log("eliminated total votes:" + scoreSheet[elementValue]['total'])
+            eliminatedTotalVotes = scoreSheet[elementValue]['total']
 
-            if (scoreSheet[elementValue]['total'] == 0) {
-                noVotesProcedure()
-            }
-            
-            prepareMessageArea()
-            var messageArea = d3.select("#winnerCircle");
-            messageArea.html((candidates_list[elementValue]) + " has been eliminated. Redistributing votes. Begin next round!")
             scoreSheet[elementValue]['eliminated'] = true
             scoreSheet[elementValue]
             eliminatedCandidate = candidates_list[elementValue]
             eliminatedCandidates.push(eliminatedCandidate)
             endofRound = false
-            redistributeVotes()
+
+            if (scoreSheet[elementValue]['total'] == 0) {
+                redistributeVotes()
+            }
+
+            else {
+                // prepareMessageArea()
+                // var messageArea = d3.select("#winnerCircle");
+                // messageArea.html((candidates_list[elementValue]) + " has been eliminated. Redistributing votes.")
+                
+                // endOfGameButtons = d3.select("#endOfGameButtons")
+                // endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
+                redistributeVotes()
+            }
+
+
+
         };
     }
 }
@@ -400,30 +435,105 @@ function redistributeVotes() {
             }
             });
         };
-    // for (i = ballotStack.length; i < ballotStack.length; i--) {
-    //     var messageArea = d3.select("#winnerCircle");
-    //     messageArea.html(("p"))
-    // }
     if (ballotStack.length == 0) {
+        console.log('the eliminated candidate is ' + eliminatedCandidate)
         noVotesProcedure()
     }
     else {
-        createTable(ballotStack[ballotCounter])
-        createScorecard(ballotStack[ballotCounter])
-        createPlayerScore()
-        d3.selectAll("input").on("click", doSomething);
+        //var plotArea = d3.select("#plotArea")
+        voteCountdown(eliminatedTotalVotes)
     }
 }
 
-function noVotesProcedure() {
-    console.log("no votes to redistribute")
-    prepareMessageArea
+function voteCountdown(eliminatedTotalVotes) {
+    console.log("the votes of the eliminated candidate " + eliminatedTotalVotes)
+    prepareMessageArea()
     var messageArea = d3.select("#winnerCircle");
+    messageArea.html((candidates_list[elementValue]) + " has been eliminated. Redistributing votes.")
+    var continueButton = d3.select("#endOfGameButtons");
+    continueButton.html("")
+
+    votestoRedistribute = eliminatedTotalVotes
+    redistributedVotes = 0
+
+    countRate = (1/(1/votestoRedistribute)) * 0.05
+
+    layout = {
+        xaxis: {range: [0, (Math.ceil(noBallots/2))]},
+        yaxis: {range: [0, 3]},
+        width: 300,
+        height: 250,
+        margin: {
+            l: 90,
+            r: 10,
+            b: 20,
+            t: 10,
+            pad: 4
+          },
+    };
+
+    data = {x: [0, redistributedVotes, votestoRedistribute], y: ["", "Balots in <br> Next Round", eliminatedCandidate + "\'s <br> Votes"], type: 'bar', orientation: 'h'}
+
+    Plotly.react(plotArea, {x: [0, redistributedVotes, votestoRedistribute], y: ["", "Balots in <br> Next Round ", eliminatedCandidate + "\'s <br> Votes "], type: 'bar', orientation: 'h'}, layout)
+
+    countDownTimer = setInterval(countDown, (1000/noBallots))
+    
+    function countDown() {
+        console.log(votestoRedistribute)
+        drawPlot(votestoRedistribute)
+        votestoRedistribute = votestoRedistribute - countRate
+        redistributedVotes = redistributedVotes + countRate
+        if (votestoRedistribute > 0 && votestoRedistribute < countRate) {
+            votestoRedistribute = 0
+            redistributedVotes = eliminatedTotalVotes
+            }
+        }
+
+    function drawPlot(votestoRedistribute) {
+
+        if (votestoRedistribute >= 0) {
+            Plotly.react(plotArea, [{x: [0, redistributedVotes, votestoRedistribute], y: ["", "Balots in <br> Next Round ", eliminatedCandidate + "\'s <br> Votes "], type: 'bar', orientation: 'h'}], layout);
+        }
+        else {
+            clearInterval(countDownTimer)
+            let littlePause = setInterval(pauseIt, 450)
+            let timer = 0
+            function pauseIt() {
+                if (timer<1) {
+                    console.log("a little pause")
+                    timer++
+                }
+                else {
+                    clearInterval(littlePause)
+                    Plotly.purge(plotArea)
+                    console.log("plot area supposed to be purged")
+                    messageArea = d3.select("#winnerCircle")
+                    messageArea.html("Begin next round!")
+                    createTable(ballotStack[ballotCounter])
+                    createScorecard(ballotStack[ballotCounter])
+                    createPlayerScore()
+                    endOfGameButtons = d3.select("#endOfGameButtons")
+                    endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"Click Anywhere to Continue"'+"bgcolor="+'"green"'+">")
+                    d3.selectAll("div").on("click", doSomething);
+                }
+            }
+            littlePause
+        }  
+    }
+    countDownTimer
+}
+        
+
+
+
+function noVotesProcedure() {
+    console.log("no votes to redistribute for " + eliminatedCandidate)
+    var messageArea = d3.select("#winnerCircle");
+    prepareMessageArea()
     messageArea.html(eliminatedCandidate + " has been eliminated but has no votes to redistribute. Choose an additional candidate to eliminate!")
     endOfGameButtons = d3.select("#endOfGameButtons")
-    endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
-    //d3.selectAll("input").on("click", eliminateProcedure)
-    d3.selectAll("input").on("click", disappearMessageArea)
+    endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"Click Anywhere to Continue"'+"bgcolor="+'"green"'+">")
+    d3.selectAll("div").on("click", disappearMessageArea)
     d3.selectAll(".voteSelect").on("click", eliminateWhom)
 }
 
@@ -446,8 +556,8 @@ function winnerProcedure() {
         messageArea = d3.select("#winnerCircle")
         messageArea.html("<h4>"+"Select the winner!"+"</h4>");
         endOfGameButtons = d3.select("#endOfGameButtons")
-        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"OK"'+"bgcolor="+'"green"'+">")
-        d3.selectAll("input").on("click", doSomething);
+        endOfGameButtons.html("<input type="+"button"+" class="+"action_button"+" id="+"OK_button"+" value="+'"Click Anywhere to Continue"'+"bgcolor="+'"green"'+">")
+        d3.selectAll("div").on("click", doSomething);
     }
     else {
         errorProcedure('noWinner');
@@ -539,13 +649,13 @@ function scoreBallot(elementValue) {
 }
 
 function doSomething() {
-    console.log("Doin Somethin")
     console.log("error code= " + errorCode)
     createPlayerScore()
     var error = 0
 
     let changedElement = d3.select(this);
     let elementValue = changedElement.property("value");
+    let elementID = changedElement.property("id");
     console.log("doing something " + elementValue)
 
     winner = false
@@ -558,13 +668,14 @@ function doSomething() {
             winning_cand = scoreSheet[i]['candidate']
             console.log(winning_cand)
         }
-        if (elementValue === "OK") {
+        if (elementValue === "OK" | elementValue === undefined) {
             d3.selectAll("input").on("click", doSomething)
         }
     };
 
     if (elementValue === "Eliminate Candidate") {
         if (endofRound == true && winner == false) {
+            console.log("this thing working?")
             eliminateProcedure()
         }
         else if (endofRound == true && winner == true) {
@@ -574,7 +685,7 @@ function doSomething() {
             errorProcedure("notEndofRound")
         }
     }
-    else if (elementValue === "OK") {
+    else if (elementValue === "OK" | elementValue === undefined) {
         console.log("something something, the last thing clicked was ok")
         disappearMessageArea()
         if (winner == true) {
@@ -613,6 +724,12 @@ createScorecard(ballotStack[ballotCounter])
 
 d3.selectAll("input").on("click", doSomething);
 
+
+//should not be able to click until the graph animation is done
+//replace eliminated votes with --
+//replace ok with click anywhere
+
+//fix no votes to redistribute -- think is fixed
 
 // received hint for end of round when it was not end of round
 // candidate does not show up as eliminated before next round begins

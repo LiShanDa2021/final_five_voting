@@ -1,0 +1,67 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Plotly Demo</title>
+</head>
+<style>
+
+
+</style>
+
+<body>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.20.0.min.js" charset="utf-8"></script>
+    <script src="new_ff_logic.js"></script>
+
+    <div id="tester"></div>
+
+    <script>
+        votes = 20
+        redistributedVotes = 0
+
+        layout = {
+            xaxis: {range: [0, 25]},
+            yaxis: {range: [0, 3]},
+            width: 400,
+            height: 300,
+        };
+
+        data = {x: [0, redistributedVotes, votes], y: ["", "Balots in Next Round", "Eliminated Candidate Votes"], type: 'bar', orientation: 'h'}
+
+        Plotly.newPlot(tester, {x: [0, redistributedVotes, votes], y: ["", "Balots in Next Round", "Eliminated Candidate Votes"], type: 'bar', orientation: 'h'}, layout)
+
+        setInterval(countDown, 50)
+
+        function countDown() {
+            votes = votes - 0.25
+            redistributedVotes = redistributedVotes + .25
+            console.log(votes)
+            drawPlot(votes)
+        }
+
+        function drawPlot(votes) {
+            if (votes >= 0) {
+                Plotly.react(tester, [{x: [0, redistributedVotes, votes], y: ["","Balots in Next Round", "Eliminated Candidate Votes"], type: 'bar', orientation: 'h'}], layout);
+            }
+            else {
+                message = d3.select("#tester")
+                message.html("Votes Redistributed")
+            }
+            
+        }
+        countDown()
+
+    
+
+    </script>
+
+</body>
+</html>
+
+
+
+
